@@ -1,0 +1,1864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="appTitle">Zakaria Family Property Evaluator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            color: #334155;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1.5rem;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .input-group label {
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .input-group input[type="number"],
+        .input-group input[type="text"],
+        .input-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            color: #334155;
+            background-color: #f8fafc;
+            transition: border-color 0.2s;
+        }
+        .input-group input[type="number"]:focus,
+        .input-group input[type="text"]:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background-color: #6366f1;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #4f46e5;
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+        .output-section {
+            background-color: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+        .output-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .output-item:last-child {
+            border-bottom: none;
+        }
+        .output-item span:first-child {
+            font-weight: 600;
+            color: #475569;
+        }
+        .output-item span:last-child {
+            color: #1e293b;
+        }
+        .unit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        .unit-card {
+            background-color: #e0f2fe;
+            border: 2px solid #90cdf4;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .unit-card.selected {
+            background-color: #a7f3d0;
+            border-color: #34d399;
+            box-shadow: 0 4px 12px rgba(52, 211, 153, 0.3);
+            transform: translateY(-2px);
+        }
+        .unit-card input[type="checkbox"] {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: #34d399; /* Green checkmark */
+        }
+        .unit-card span {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #0c4a6e;
+        }
+        .unit-card p {
+            font-size: 0.9rem;
+            color: #155e75;
+        }
+        .combinations-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+        }
+        .combination-item {
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .combination-item:last-child {
+            border-bottom: none;
+        }
+        .combination-item span {
+            font-weight: 500;
+            color: #334155;
+        }
+        .combination-item .diff {
+            font-weight: 600;
+        }
+        .diff.positive {
+            color: #ef4444; /* Red for above */
+        }
+        .diff.negative {
+            color: #22c55e; /* Green for below */
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 2rem;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 1rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .view-toggle label {
+            background-color: #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: #475569;
+            transition: background-color 0.2s;
+        }
+        .view-toggle input[type="radio"]:checked + label {
+            background-color: #6366f1;
+            color: #ffffff;
+        }
+        .view-toggle input[type="radio"] {
+            display: none;
+        }
+        .unit-based-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            background-color: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+        .unit-info-card {
+            background-color: #e0f2fe;
+            border: 2px solid #90cdf4;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .unit-info-card span {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #0c4a6e;
+        }
+        .unit-info-card p {
+            font-size: 0.9rem;
+            color: #155e75;
+        }
+        .unit-selection-input {
+            width: 60px;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4">
+
+    <div class="container">
+        <div class="flex justify-end mb-4">
+            <div class="language-selector">
+                <label data-i18n="language">Language:</label>
+                <select id="languageSelect" class="p-2 border rounded-md">
+                    <option value="en">English</option>
+                    <option value="bn">বাংলা</option>
+                </select>
+            </div>
+        </div>
+
+        <h1 class="text-3xl font-extrabold text-center text-indigo-700 mb-8" data-i18n="appTitle">Zakaria Family Property Evaluator</h1>
+
+        <!-- Input Form -->
+        <section class="mb-8 p-6 bg-white rounded-xl shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="defaultValuesAndInputs">Default Values & Inputs</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Property Area -->
+                <div class="input-group">
+                    <label for="propertyArea" data-i18n="propertyArea">Property Area:</label>
+                    <div class="flex space-x-2">
+                        <input type="number" id="propertyArea" placeholder="" class="flex-grow">
+                        <select id="propertyUnit" class="w-24">
+                            <option value="decimal" data-i18n="decimal">Decimal</option>
+                            <option value="sqft" data-i18n="sqFt">Sq Ft</option>
+                        </select>
+                    </div>
+                    <p id="propertyAreaConverted" class="text-sm text-gray-500 mt-1"></p>
+                </div>
+
+                <!-- Building Dimensions (Approximate) -->
+                <div>
+                    <label class="font-semibold text-gray-700 mb-2 block" data-i18n="buildingDimensionsTitle">Building Dimensions (e.g., 6'2'' for 6 feet 2 inches):</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label for="lengthFront" class="text-sm" data-i18n="lengthFront">Length (Front):</label>
+                            <input type="text" id="lengthFront" placeholder="e.g., 60' or 60'5''">
+                        </div>
+                        <div class="input-group">
+                            <label for="lengthBack" class="text-sm" data-i18n="lengthBack">Length (Back):</label>
+                            <input type="text" id="lengthBack" placeholder="e.g., 60' or 60'5''">
+                        </div>
+                        <div class="input-group">
+                            <label for="widthRight" class="text-sm" data-i18n="widthRight">Width (Right):</label>
+                            <input type="text" id="widthRight" placeholder="e.g., 30' or 30'8''">
+                        </div>
+                        <div class="input-group">
+                            <label for="widthLeft" class="text-sm" data-i18n="widthLeft">Width (Left):</label>
+                            <input type="text" id="widthLeft" placeholder="e.g., 30' or 30'8''">
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1" data-i18n="buildingDimensionsNote">
+                        Note: Building area will be calculated using specific unit areas for accuracy. These dimensions are for reference.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Specific Unit Areas -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3" data-i18n="specificUnitAreasTitle">Unit-ভিত্তিক এরিয়া (বর্গফুট, প্রতি ফ্লোর):</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div class="input-group">
+                        <label for="unitA" data-i18n="unitA">A Unit:</label>
+                        <input type="number" id="unitA" placeholder="Sq Ft">
+                    </div>
+                    <div class="input-group">
+                        <label for="unitB" data-i18n="unitB">B Unit:</label>
+                        <input type="number" id="unitB" placeholder="Sq Ft">
+                    </div>
+                    <div class="input-group">
+                        <label for="unitC" data-i18n="unitC">C Unit:</label>
+                        <input type="number" id="unitC" placeholder="Sq Ft">
+                    </div>
+                    <div class="input-group">
+                        <label for="unitD" data-i18n="unitD">D Unit:</label>
+                        <input type="number" id="unitD" placeholder="Sq Ft">
+                    </div>
+                    <div class="input-group">
+                        <label for="unitE" data-i18n="unitE">E Unit:</label>
+                        <input type="number" id="unitE" placeholder="Sq Ft">
+                    </div>
+                    <div class="input-group">
+                        <label for="unitF" data-i18n="unitF">F Unit:</label>
+                        <input type="number" id="unitF" placeholder="Sq Ft">
+                    </div>
+                    <div class="input-group">
+                        <label for="unitStairs" data-i18n="unitStairs">Stairs/Common Area:</label>
+                        <input type="number" id="unitStairs" placeholder="Sq Ft">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Share and Compensation -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="input-group">
+                    <label for="zakariaShare" data-i18n="zakariaShareApartments">Zakaria Family Share (No. of Apartments):</label>
+                    <input type="number" id="zakariaShare" value="16" min="1" max="42">
+                    <p class="text-sm text-gray-500 mt-1" data-i18n="totalApartmentsNote">Total apartments: 7 floors * 6 units/floor = 42</p>
+                </div>
+                <div class="input-group">
+                    <label for="zakariaShareRatio" data-i18n="zakariaShareRatio">Zakaria Family Share (% of Total Apartments):</label>
+                    <input type="number" id="zakariaShareRatio" placeholder="e.g., 38.09" step="0.01">
+                    <p class="text-sm text-gray-500 mt-1" data-i18n="calculatedFromApartments">Calculated from Zakaria Family Share (No. of Apartments)</p>
+                </div>
+
+                <div class="input-group">
+                    <label for="compensationAmount" data-i18n="offeredCompensation">Offered Compensation (Taka):</label>
+                    <input type="number" id="compensationAmount" placeholder="Amount in Taka">
+                    <div class="flex space-x-2 mt-2">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="compensationType" value="total" checked class="form-radio text-indigo-600 rounded-full">
+                            <span class="ml-2 text-gray-700" data-i18n="totalPayment">Total Payment</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="compensationType" value="monthly" class="form-radio text-indigo-600 rounded-full">
+                            <span class="ml-2 text-gray-700" data-i18n="monthlyPayment">Monthly Payment</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="durationValue" data-i18n="duration">Duration:</label>
+                    <div class="flex space-x-2">
+                        <input type="number" id="durationValue" placeholder="" class="flex-grow">
+                        <select id="durationUnit" class="w-24">
+                            <option value="years" data-i18n="years">Years</option>
+                            <option value="months" data-i18n="months">Months</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="interestRate" data-i18n="interestRate">Interest Rate (Annual %):</label>
+                    <input type="number" id="interestRate" placeholder="e.g., 5 for 5%" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="inflationRate" data-i18n="inflationRate">Inflation Rate (Annual %):</label>
+                    <input type="number" id="inflationRate" placeholder="e.g., 3 for 3%" step="0.1">
+                </div>
+            </div>
+
+            <!-- Preference Order -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3" data-i18n="preferenceOrderTitle">Preference Order (e.g., 4>5>6 for floors, C>A>B for units):</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="input-group">
+                        <label for="floorPreferenceOrder" data-i18n="preferredFloorOrder">Preferred Floor Order:</label>
+                        <input type="text" id="floorPreferenceOrder" placeholder="e.g., 4>5>6>3">
+                        <p class="text-sm text-gray-500 mt-1" data-i18n="floorOrderNote">Enter floors separated by '>', e.g., 4>5>6</p>
+                    </div>
+                    <div class="input-group">
+                        <label for="unitPreferenceOrder" data-i18n="preferredUnitOrder">Preferred Unit Order:</label>
+                        <input type="text" id="unitPreferenceOrder" placeholder="e.g., C>A>B">
+                        <p class="text-sm text-gray-500 mt-1" data-i18n="unitOrderNote">Enter units separated by '>', e.g., C>A>B</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button id="calculateBtn" class="btn btn-primary" data-i18n="calculateShareOptionsBtn">Calculate Share & Options</button>
+                <button id="setDefaultsBtn" class="btn btn-secondary" data-i18n="setAsDefaultBtn">Set as Default</button>
+                <button id="resetDefaultsBtn" class="btn btn-secondary" data-i18n="resetDefaultsBtn">Reset Defaults</button>
+            </div>
+        </section>
+
+        <!-- Output Section -->
+        <section class="output-section mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="calculatedOutcomes">Calculated Outcomes</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="propertyBuildingDetails">Property & Building Details:</h3>
+                    <div class="space-y-2">
+                        <div class="output-item">
+                            <span data-i18n="propertyAreaOutput">Property Area:</span>
+                            <span id="outputPropertyArea">0 Sq Ft (0 Decimal)</span>
+                        </div>
+                        <div class="output-item">
+                            <span data-i18n="totalBuildingAreaPerFloor">Total Building Area Per Floor:</span>
+                            <span id="outputBuildingAreaPerFloor">0 Sq Ft (0 Decimal)</span>
+                        </div>
+                        <div class="output-item">
+                            <span data-i18n="totalBuildingArea7Floors">Total Building Area (7 Floors):</span>
+                            <span id="outputBuildingArea">0 Sq Ft (0 Decimal)</span>
+                        </div>
+                        <div class="output-item">
+                            <span data-i18n="surroundingArea">Surrounding Area (Land not covered by building):</span>
+                            <span id="outputSurroundingArea">0 Sq Ft (0 Decimal)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="munirFamilyShare">Munir Family's Share:</h3>
+                    <div class="space-y-2">
+                        <div class="output-item">
+                            <span data-i18n="ourShareOfApartments">Our Share of Apartments:</span>
+                            <span id="outputMunirApartments">0 Apartments</span>
+                        </div>
+                        <div class="output-item">
+                            <span data-i18n="ourShareApprox">Our Share (Approximate, excluding common area):</span>
+                            <span id="outputMunirShareApprox">0 Sq Ft (0 Decimal)</span>
+                        </div>
+                        <div class="output-item">
+                            <span data-i18n="ourShareOfCompensation">Our Share of Compensation:</span>
+                            <span id="outputMunirCompensation">0 Taka (Total)</span>
+                        </div>
+                        <div class="output-item">
+                            <span data-i18n="discountedCompensationValue">Discounted Compensation Value (Nominal):</span>
+                            <span id="outputDiscountedCompensationNominal">0 Taka</span>
+                        </div>
+                         <div class="output-item">
+                            <span data-i18n="discountedCompensationValueReal">Discounted Compensation Value (Real):</span>
+                            <span id="outputDiscountedCompensationReal">0 Taka</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Apartment Combinations Section -->
+        <section class="p-6 bg-white rounded-xl shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="yourApartmentChoices">Your Apartment Choices</h2>
+            <div class="view-toggle">
+                <input type="radio" id="floorUnitView" name="apartmentView" value="floorUnit" checked>
+                <label for="floorUnitView" data-i18n="floorUnitView">Floor-Unit View</label>
+                <input type="radio" id="unitBasedView" name="apartmentView" value="unitBased">
+                <label for="unitBasedView" data-i18n="unitBasedView">Unit-Based View (Informational & Selection)</label>
+            </div>
+
+            <div id="floorUnitSelectionSection">
+                <p class="text-gray-600 mb-4" data-i18n="selectApartmentsNote">Select <span id="requiredApartments">4</span> apartments for Munir family. Total selected: <span id="selectedCount">0</span></p>
+                <div class="unit-grid mb-8" id="apartmentSelectionGrid">
+                    <!-- Units will be dynamically generated here -->
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="selectedApartmentsSummary">Selected Apartments Summary:</h3>
+                    <div class="output-item mb-2">
+                        <span data-i18n="totalAreaOfSelectedApartments">Total Area of Selected Apartments:</span>
+                        <span id="selectedApartmentsTotalArea">0 Sq Ft</span>
+                    </div>
+                    <div class="output-item">
+                        <span data-i18n="differenceFromMunirShare">Difference from Munir's Share:</span>
+                        <span id="selectedApartmentsDifference" class="font-bold">0 Sq Ft</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="unitBasedInfoSection" style="display: none;">
+                <p class="text-gray-600 mb-4" data-i18n="selectUnitQuantitiesNote">Select quantities for each unit type. Total selected units must not exceed <span id="requiredApartmentsUnitBased">4</span>.</p>
+                <div class="unit-based-info-grid mb-8" id="unitInfoGrid">
+                    <!-- Unit info cards will be dynamically generated here -->
+                </div>
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="selectedUnitTypesSummary">Selected Unit Types Summary:</h3>
+                    <div class="output-item mb-2">
+                        <span data-i18n="totalUnitsSelected">Total Units Selected:</span>
+                        <span id="selectedUnitTypesCount">0</span>
+                    </div>
+                    <div class="output-item mb-2">
+                        <span data-i18n="totalAreaOfSelectedUnitTypes">Total Area of Selected Unit Types:</span>
+                        <span id="selectedUnitTypesTotalArea">0 Sq Ft</span>
+                    </div>
+                    <div class="output-item">
+                        <span data-i18n="differenceFromMunirShareUnitBased">Difference from Munir's Share:</span>
+                        <span id="selectedUnitTypesDifference" class="font-bold">0 Sq Ft</span>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="top5CombinationsTitle">Top 5 Combinations (Closest to Munir's Share, considering preferences):</h3>
+                <div id="topCombinationsList" class="combinations-list mb-4">
+                    <p class="text-gray-500" data-i18n="calculateFirstCombinations">Calculate first to see combinations.</p>
+                </div>
+
+                <div class="mb-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-3" data-i18n="filterCombinationsTitle">Filter All Possible Combinations:</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="input-group">
+                            <label for="mustFeatureUnit1" class="text-sm" data-i18n="mustFeatureUnit1">Must feature Unit 1:</label>
+                            <select id="mustFeatureUnit1" class="w-full">
+                                <option value="" data-i18n="selectUnit">-- Select Unit --</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                                <option value="F">F</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="mustFeatureUnit2" class="text-sm" data-i18n="mustFeatureUnit2">Must feature Unit 2:</label>
+                            <select id="mustFeatureUnit2" class="w-full">
+                                <option value="" data-i18n="selectUnit">-- Select Unit --</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                                <option value="F">F</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="mustNotFeatureUnit1" class="text-sm" data-i18n="mustNotFeatureUnit1">Must not feature Unit 1:</label>
+                            <select id="mustNotFeatureUnit1" class="w-full">
+                                <option value="" data-i18n="selectUnit">-- Select Unit --</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                                <option value="F">F</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="mustNotFeatureUnit2" class="text-sm" data-i18n="mustNotFeatureUnit2">Must not feature Unit 2:</label>
+                            <select id="mustNotFeatureUnit2" class="w-full">
+                                <option value="" data-i18n="selectUnit">-- Select Unit --</option>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                                <option value="E">E</option>
+                                <option value="F">F</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="showAllCombinationsBtn" class="btn btn-secondary w-full" data-i18n="showAllCombinationsBtn">Show All Possible Combinations (with filters)</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Custom Message Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <p id="modalMessage" class="text-lg text-center text-gray-800"></p>
+            <div class="flex justify-center mt-6">
+                <button id="modalCloseBtn" class="btn btn-primary" data-i18n="okBtn">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants for conversion
+        const SQFT_PER_DECIMAL = 435.6;
+        const TOTAL_FLOORS = 7;
+        const UNITS_PER_FLOOR = 6; // A, B, C, D, E, F
+        const TOTAL_APARTMENTS = TOTAL_FLOORS * UNITS_PER_FLOOR;
+        const UNIT_TYPES_ORDERED = ['D', 'E', 'F', 'A', 'B', 'C']; // New order for display
+
+        // Translations object
+        const translations = {
+            en: {
+                appTitle: "Zakaria Family Property Evaluator",
+                language: "Language:",
+                defaultValuesAndInputs: "Default Values & Inputs",
+                propertyArea: "Property Area:", // Changed from "সম্পত্তির ক্ষেত্রফল"
+                decimal: "Decimal",
+                sqFt: "Sq Ft",
+                buildingDimensionsTitle: "Building Dimensions (e.g., 6'2'' for 6 feet 2 inches):",
+                lengthFront: "Length (Front):",
+                lengthBack: "Length (Back):",
+                widthRight: "Width (Right):",
+                widthLeft: "Width (Left):",
+                buildingDimensionsNote: "Note: Building area will be calculated using specific unit areas for accuracy. These dimensions are for reference.",
+                specificUnitAreasTitle: "Unit-Based Area (Sq Ft, per floor):", // Changed from "নির্দিষ্ট ইউনিট এলাকা"
+                unitA: "A Unit:",
+                unitB: "B Unit:",
+                unitC: "C Unit:",
+                unitD: "D Unit:",
+                unitE: "E Unit:",
+                unitF: "F Unit:",
+                unitStairs: "Stairs/Common Area:",
+                zakariaShareApartments: "Zakaria Family Share (No. of Apartments):",
+                totalApartmentsNote: "Total apartments: 7 floors * 6 units/floor = 42",
+                zakariaShareRatio: "Zakaria Family Share (% of Total Apartments):",
+                calculatedFromApartments: "Calculated from Zakaria Family Share (No. of Apartments)",
+                offeredCompensation: "Offered Compensation (Taka):",
+                totalPayment: "Total Payment",
+                monthlyPayment: "Monthly Payment",
+                duration: "Duration:",
+                years: "Years",
+                months: "Months",
+                interestRate: "Interest Rate (Annual %):",
+                inflationRate: "Inflation Rate (Annual %):", // New translation
+                preferenceOrderTitle: "Preference Order (e.g., 4>5>6 for floors, C>A>B for units):",
+                preferredFloorOrder: "Preferred Floor Order:",
+                floorOrderNote: "Enter floors separated by '>', e.g., 4>5>6",
+                preferredUnitOrder: "Preferred Unit Order:",
+                unitOrderNote: "Enter units separated by '>', e.g., C>A>B",
+                calculateShareOptionsBtn: "Calculate Share & Options",
+                setAsDefaultBtn: "Set as Default",
+                resetDefaultsBtn: "Reset Defaults",
+                calculatedOutcomes: "Calculated Outcomes",
+                propertyBuildingDetails: "Property & Building Details:",
+                propertyAreaOutput: "Property Area:",
+                totalBuildingAreaPerFloor: "Total Building Area Per Floor:",
+                totalBuildingArea7Floors: "Total Building Area (7 Floors):",
+                surroundingArea: "Surrounding Area (Land not covered by building):",
+                munirFamilyShare: "Munir Family's Share:",
+                ourShareOfApartments: "Our Share of Apartments:",
+                ourShareApprox: "Our Share (Approximate, excluding common area):", // Percentage removed from here
+                ourShareOfCompensation: "Our Share of Compensation:",
+                discountedCompensationValue: "Discounted Compensation Value (Nominal):", // Changed label
+                discountedCompensationValueReal: "Discounted Compensation Value (Real):", // New label
+                yourApartmentChoices: "Your Apartment Choices",
+                floorUnitView: "Floor-Unit View",
+                unitBasedView: "Unit-Based View (Informational & Selection)",
+                selectApartmentsNote: "Select <span id=\"requiredApartments\">4</span> apartments for Munir family. Total selected: <span id=\"selectedCount\">0</span>",
+                selectedApartmentsSummary: "Selected Apartments Summary:",
+                totalAreaOfSelectedApartments: "Total Area of Selected Apartments:",
+                differenceFromMunirShare: "Difference from Munir's Share:",
+                selectUnitQuantitiesNote: "Select quantities for each unit type. Total selected units must not exceed <span id=\"requiredApartmentsUnitBased\">4</span>.",
+                selectedUnitTypesSummary: "Selected Unit Types Summary:",
+                totalUnitsSelected: "Total Units Selected:",
+                totalAreaOfSelectedUnitTypes: "Total Area of Selected Unit Types:",
+                differenceFromMunirShareUnitBased: "Difference from Munir's Share:",
+                top5CombinationsTitle: "Top 5 Combinations (Closest to Munir's Share, considering preferences):",
+                calculateFirstCombinations: "Calculate first to see combinations.",
+                filterCombinationsTitle: "Filter All Possible Combinations:",
+                mustFeatureUnit1: "Must feature Unit 1:",
+                mustFeatureUnit2: "Must feature Unit 2:",
+                mustNotFeatureUnit1: "Must not feature Unit 1:",
+                mustNotFeatureUnit2: "Must not feature Unit 2:",
+                selectUnit: "-- Select Unit --",
+                showAllCombinationsBtn: "Show All Possible Combinations (with filters)",
+                okBtn: "OK",
+                // JS messages
+                msgEnterValidPropertyArea: "Please enter a valid Property Area.",
+                msgEnterValidZakariaShare: "Please enter a valid Zakaria Family Share (1-42).",
+                msgEnterPositiveUnitAreas: "Please ensure all specific unit areas (A-F) and Stairs/Common Area are entered and are positive values.",
+                msgOnlySelectApartments: "You can only select {count} apartments.",
+                msgOnlySelectTotalUnits: "You can only select a total of {count} apartments across all unit types.",
+                msgInvalidDurationInterest: "N/A (Invalid duration/interest for monthly or total payment selected)",
+                msgNoCombinationsFound: "No combinations found matching the criteria. Please ensure unit areas are entered and your required apartments are set, and adjust filters if applied.",
+                msgDefaultsSaved: "Default values saved successfully!",
+                msgDefaultsLoaded: "Default values loaded.",
+                msgNoDefaultsFound: "No default values found. Using initial values.",
+                msgDefaultsReset: "All default values have been reset!",
+                floorText: "Floor",
+                unitText: "Unit",
+                sqFtShort: "Sq Ft",
+                availableAcrossFloors: "available across floors"
+            },
+            bn: {
+                appTitle: "জাকারিয়া পরিবার সম্পত্তি মূল্যায়নকারী",
+                language: "ভাষা:",
+                defaultValuesAndInputs: "ডিফল্ট মান এবং ইনপুট",
+                propertyArea: "প্রপার্টি এরিয়া:", // Changed from "সম্পত্তির ক্ষেত্রফল"
+                decimal: "ডেসিমেল",
+                sqFt: "বর্গফুট",
+                buildingDimensionsTitle: "বিল্ডিংয়ের মাত্রা (যেমন, ৬'২'' মানে ৬ ফুট ২ ইঞ্চি):",
+                lengthFront: "দৈর্ঘ্য (সামনে):",
+                lengthBack: "দৈর্ঘ্য (পিছনে):",
+                widthRight: "প্রস্থ (ডান):",
+                widthLeft: "প্রস্থ (বাম):",
+                buildingDimensionsNote: "দ্রষ্টব্য: বিল্ডিংয়ের ক্ষেত্রফল সঠিকতার জন্য নির্দিষ্ট ইউনিট এলাকা ব্যবহার করে গণনা করা হবে। এই মাত্রাগুলি রেফারেন্সের জন্য।",
+                specificUnitAreasTitle: "ইউনিট-ভিত্তিক এরিয়া (বর্গফুট, প্রতি ফ্লোর):", // Changed from "নির্দিষ্ট ইউনিট এলাকা"
+                unitA: "এ ইউনিট:",
+                unitB: "বি ইউনিট:",
+                unitC: "সি ইউনিট:",
+                unitD: "ডি ইউনিট:",
+                unitE: "ই ইউনিট:",
+                unitF: "এফ ইউনিট:",
+                unitStairs: "সিঁড়ি/সাধারণ এলাকা:",
+                zakariaShareApartments: "জাকারিয়া পরিবারের অংশ (অ্যাপার্টমেন্ট সংখ্যা):",
+                totalApartmentsNote: "মোট অ্যাপার্টমেন্ট: ৭ তলা * ৬ ইউনিট/তলা = ৪২",
+                zakariaShareRatio: "জাকারিয়া পরিবারের অংশ (মোট অ্যাপার্টমেন্টের %):",
+                calculatedFromApartments: "জাকারিয়া পরিবারের অ্যাপার্টমেন্ট সংখ্যা থেকে গণনা করা হয়েছে",
+                offeredCompensation: "প্রস্তাবিত ক্ষতিপূরণ (টাকা):",
+                totalPayment: "এককালীন পরিশোধ",
+                monthlyPayment: "মাসিক পরিশোধ",
+                duration: "সময়কাল:",
+                years: "বছর",
+                months: "মাস",
+                interestRate: "সুদের হার (বার্ষিক %):",
+                inflationRate: "মুদ্রাস্ফীতির হার (বার্ষিক %):", // New translation
+                preferenceOrderTitle: "পছন্দের ক্রম (যেমন, ফ্লোরের জন্য ৪>৫>৬, ইউনিটের জন্য সি>এ>বি):",
+                preferredFloorOrder: "পছন্দের ফ্লোর ক্রম:",
+                floorOrderNote: "ফ্লোরগুলি '>' দ্বারা আলাদা করে লিখুন, যেমন, ৪>৫>৬",
+                preferredUnitOrder: "পছন্দের ইউনিট ক্রম:",
+                unitOrderNote: "ইউনিটগুলি '>' দ্বারা আলাদা করে লিখুন, যেমন, সি>এ>বি",
+                calculateShareOptionsBtn: "অংশ এবং বিকল্প গণনা করুন",
+                setAsDefaultBtn: "ডিফল্ট হিসাবে সেট করুন",
+                resetDefaultsBtn: "ডিফল্ট রিসেট করুন",
+                calculatedOutcomes: "গণনাকৃত ফলাফল",
+                propertyBuildingDetails: "সম্পত্তি এবং বিল্ডিং বিবরণ:",
+                propertyAreaOutput: "প্রপার্টি এরিয়া:",
+                totalBuildingAreaPerFloor: "প্রতি ফ্লোরের মোট বিল্ডিং এলাকা:",
+                totalBuildingArea7Floors: "মোট বিল্ডিং এলাকা (৭ তলা):",
+                surroundingArea: "পার্শ্ববর্তী এলাকা (বিল্ডিং দ্বারা আবৃত নয় এমন জমি):",
+                munirFamilyShare: "মুনির পরিবারের অংশ:",
+                ourShareOfApartments: "আমাদের অ্যাপার্টমেন্টের অংশ:",
+                ourShareApprox: "আমাদের অংশ (আনুমানিক, সাধারণ এলাকা ব্যতীত):", // Percentage removed from here
+                ourShareOfCompensation: "আমাদের ক্ষতিপূরণের অংশ:",
+                discountedCompensationValue: "ডিসকাউন্টকৃত ক্ষতিপূরণের মূল্য (নামমাত্র):", // Changed label
+                discountedCompensationValueReal: "ডিসকাউন্টকৃত ক্ষতিপূরণের মূল্য (প্রকৃত):", // New label
+                yourApartmentChoices: "আপনার অ্যাপার্টমেন্ট পছন্দ",
+                floorUnitView: "ফ্লোর-ইউনিট ভিউ",
+                unitBasedView: "ইউনিট-ভিত্তিক ভিউ (তথ্য ও নির্বাচন)",
+                selectApartmentsNote: "মুনির পরিবারের জন্য <span id=\"requiredApartments\">৪</span>টি অ্যাপার্টমেন্ট নির্বাচন করুন। মোট নির্বাচিত: <span id=\"selectedCount\">০</span>",
+                selectedApartmentsSummary: "নির্বাচিত অ্যাপার্টমেন্টের সারাংশ:",
+                totalAreaOfSelectedApartments: "নির্বাচিত অ্যাপার্টমেন্টের মোট ক্ষেত্রফল:",
+                differenceFromMunirShare: "মুনিরের অংশ থেকে পার্থক্য:",
+                selectUnitQuantitiesNote: "প্রতিটি ইউনিটের জন্য পরিমাণ নির্বাচন করুন। মোট নির্বাচিত ইউনিট <span id=\"requiredApartmentsUnitBased\">৪</span> এর বেশি হতে পারবে না।",
+                selectedUnitTypesSummary: "নির্বাচিত ইউনিট প্রকারের সারাংশ:",
+                totalUnitsSelected: "মোট নির্বাচিত ইউনিট:",
+                totalAreaOfSelectedUnitTypes: "নির্বাচিত ইউনিট প্রকারের মোট ক্ষেত্রফল:",
+                differenceFromMunirShareUnitBased: "মুনিরের অংশ থেকে পার্থক্য:",
+                top5CombinationsTitle: "শীর্ষ ৫টি সমন্বয় (মুনিরের অংশের নিকটতম, পছন্দ বিবেচনা করে):",
+                calculateFirstCombinations: "সমন্বয় দেখতে প্রথমে গণনা করুন।",
+                filterCombinationsTitle: "সমস্ত সম্ভাব্য সমন্বয় ফিল্টার করুন:",
+                mustFeatureUnit1: "অবশ্যই ইউনিট ১ থাকতে হবে:",
+                mustFeatureUnit2: "অবশ্যই ইউনিট ২ থাকতে হবে:",
+                mustNotFeatureUnit1: "ইউনিট ১ থাকা যাবে না:",
+                mustNotFeatureUnit2: "ইউনিট ২ থাকা যাবে না:",
+                selectUnit: "-- ইউনিট নির্বাচন করুন --",
+                showAllCombinationsBtn: "সমস্ত সম্ভাব্য সমন্বয় দেখান (ফিল্টার সহ)",
+                okBtn: "ঠিক আছে",
+                // JS messages
+                msgEnterValidPropertyArea: "অনুগ্রহ করে একটি বৈধ প্রপার্টি এরিয়া লিখুন।",
+                msgEnterValidZakariaShare: "অনুগ্রহ করে জাকারিয়া পরিবারের অংশের জন্য একটি বৈধ সংখ্যা (১-৪২) লিখুন।",
+                msgEnterPositiveUnitAreas: "অনুগ্রহ করে নিশ্চিত করুন যে সমস্ত ইউনিট-ভিত্তিক এরিয়া (A-F) এবং সিঁড়ি/সাধারণ এলাকা প্রবেশ করানো হয়েছে এবং ধনাত্মক মান।",
+                msgOnlySelectApartments: "আপনি শুধুমাত্র {count}টি অ্যাপার্টমেন্ট নির্বাচন করতে পারবেন।",
+                msgOnlySelectTotalUnits: "আপনি সমস্ত ইউনিট প্রকার জুড়ে মোট {count}টি অ্যাপার্টমেন্ট নির্বাচন করতে পারবেন।",
+                msgInvalidDurationInterest: "প্রযোজ্য নয় (মাসিক বা এককালীন পেমেন্টের জন্য অবৈধ সময়কাল/সুদ)",
+                msgNoCombinationsFound: "শর্তগুলির সাথে মেলে এমন কোনো সমন্বয় পাওয়া যায়নি। অনুগ্রহ করে নিশ্চিত করুন যে ইউনিট-ভিত্তিক এরিয়া প্রবেশ করানো হয়েছে এবং আপনার প্রয়োজনীয় অ্যাপার্টমেন্টগুলি সেট করা আছে, এবং ফিল্টারগুলি সামঞ্জস্য করুন।",
+                msgDefaultsSaved: "ডিফল্ট মান সফলভাবে সংরক্ষণ করা হয়েছে!",
+                msgDefaultsLoaded: "ডিফল্ট মান লোড করা হয়েছে।",
+                msgNoDefaultsFound: "কোনো ডিফল্ট মান পাওয়া যায়নি। প্রাথমিক মান ব্যবহার করা হচ্ছে।",
+                msgDefaultsReset: "সমস্ত ডিফল্ট মান রিসেট করা হয়েছে!",
+                floorText: "ফ্লোর",
+                unitText: "ইউনিট",
+                sqFtShort: "বর্গফুট",
+                availableAcrossFloors: "ফ্লোর জুড়ে উপলব্ধ"
+            }
+        };
+
+        // DOM Elements
+        const languageSelect = document.getElementById('languageSelect');
+        const propertyAreaInput = document.getElementById('propertyArea');
+        const propertyUnitSelect = document.getElementById('propertyUnit');
+        const propertyAreaConvertedP = document.getElementById('propertyAreaConverted');
+
+        const lengthFrontInput = document.getElementById('lengthFront');
+        const lengthBackInput = document.getElementById('lengthBack');
+        const widthRightInput = document.getElementById('widthRight');
+        const widthLeftInput = document.getElementById('widthLeft');
+
+        const unitAInput = document.getElementById('unitA');
+        const unitBInput = document.getElementById('unitB');
+        const unitCInput = document.getElementById('unitC');
+        const unitDInput = document.getElementById('unitD');
+        const unitEInput = document.getElementById('unitE');
+        const unitFInput = document.getElementById('unitF');
+        const unitStairsInput = document.getElementById('unitStairs');
+
+        const zakariaShareInput = document.getElementById('zakariaShare');
+        const zakariaShareRatioInput = document.getElementById('zakariaShareRatio'); // New ratio input
+        const compensationAmountInput = document.getElementById('compensationAmount');
+        const compensationTypeRadios = document.querySelectorAll('input[name="compensationType"]');
+        const durationValueInput = document.getElementById('durationValue');
+        const durationUnitSelect = document.getElementById('durationUnit');
+        const interestRateInput = document.getElementById('interestRate');
+        const inflationRateInput = document.getElementById('inflationRate'); // New inflation rate input
+
+        const floorPreferenceOrderInput = document.getElementById('floorPreferenceOrder'); // New preference input
+        const unitPreferenceOrderInput = document.getElementById('unitPreferenceOrder'); // New preference input
+
+        const calculateBtn = document.getElementById('calculateBtn');
+        const setDefaultsBtn = document.getElementById('setDefaultsBtn');
+        const resetDefaultsBtn = document.getElementById('resetDefaultsBtn');
+
+        const outputPropertyArea = document.getElementById('outputPropertyArea');
+        const outputBuildingAreaPerFloor = document.getElementById('outputBuildingAreaPerFloor');
+        const outputBuildingArea = document.getElementById('outputBuildingArea');
+        const outputSurroundingArea = document.getElementById('outputSurroundingArea');
+        const outputMunirApartments = document.getElementById('outputMunirApartments');
+        const outputMunirShareApprox = document.getElementById('outputMunirShareApprox');
+        const outputMunirCompensation = document.getElementById('outputMunirCompensation');
+        const outputDiscountedCompensationNominal = document.getElementById('outputDiscountedCompensationNominal'); // Changed ID
+        const outputDiscountedCompensationReal = document.getElementById('outputDiscountedCompensationReal'); // New ID
+
+        const requiredApartmentsSpan = document.getElementById('requiredApartments');
+        const selectedCountSpan = document.getElementById('selectedCount');
+        const apartmentSelectionGrid = document.getElementById('apartmentSelectionGrid');
+        const selectedApartmentsTotalAreaSpan = document.getElementById('selectedApartmentsTotalArea');
+        const selectedApartmentsDifferenceSpan = document.getElementById('selectedApartmentsDifference');
+        const topCombinationsList = document.getElementById('topCombinationsList');
+
+        const messageModal = document.getElementById('messageModal');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const closeButton = document.querySelector('.close-button');
+
+        const floorUnitViewRadio = document.getElementById('floorUnitView');
+        const unitBasedViewRadio = document.getElementById('unitBasedView');
+        const floorUnitSelectionSection = document.getElementById('floorUnitSelectionSection');
+        const unitBasedInfoSection = document.getElementById('unitBasedInfoSection');
+        const unitInfoGrid = document.getElementById('unitInfoGrid');
+        const requiredApartmentsUnitBasedSpan = document.getElementById('requiredApartmentsUnitBased'); // New span for unit-based view
+        const selectedUnitTypesCountSpan = document.getElementById('selectedUnitTypesCount');
+        const selectedUnitTypesTotalAreaSpan = document.getElementById('selectedUnitTypesTotalArea');
+        const selectedUnitTypesDifferenceSpan = document.getElementById('selectedUnitTypesDifference');
+        const showAllCombinationsBtn = document.getElementById('showAllCombinationsBtn');
+
+        // New filter dropdowns
+        const mustFeatureUnit1Select = document.getElementById('mustFeatureUnit1');
+        const mustFeatureUnit2Select = document.getElementById('mustFeatureUnit2');
+        const mustNotFeatureUnit1Select = document.getElementById('mustNotFeatureUnit1');
+        const mustNotFeatureUnit2Select = document.getElementById('mustNotFeatureUnit2');
+
+
+        // Global variables for calculations
+        let munirFamilyRequiredApartments = 4; // Default based on 16/4
+        let munirFamilyShareSqFt = 0;
+        let unitAreas = {}; // To store the areas of A, B, C, D, E, F units, and Stairs
+        let selectedUnitTypeQuantities = {}; // For unit-based selection: {A: 0, B: 0, ...}
+        let currentLanguage = 'en';
+
+        // Helper to convert Bengali numerals to English
+        const bengaliToEnglishNumerals = {
+            '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4',
+            '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9'
+        };
+
+        function convertBengaliNumeralsToEnglish(str) {
+            return str.split('').map(char => bengaliToEnglishNumerals[char] || char).join('');
+        }
+
+        // --- Language Functions ---
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('selectedLanguage', lang);
+
+            // Update title
+            document.querySelector('title').textContent = translations[lang].appTitle;
+
+            // Update elements with data-i18n attribute
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    // Handle special cases for innerHTML (e.g., span inside p)
+                    if (key === 'selectApartmentsNote' || key === 'selectUnitQuantitiesNote') {
+                        element.innerHTML = translations[lang][key];
+                    } else {
+                        element.textContent = translations[lang][key];
+                    }
+                }
+            });
+
+            // Update placeholders
+            propertyAreaInput.placeholder = translations[lang].propertyArea.replace(':', '');
+            durationValueInput.placeholder = translations[lang].duration.replace(':', '');
+            // Update the specific unit area titles
+            document.querySelector('h3[data-i18n="specificUnitAreasTitle"]').textContent = translations[lang].specificUnitAreasTitle;
+
+
+            // Update dynamically generated content if already present
+            generateApartmentGrid();
+            generateUnitInfoGrid();
+            calculateShareAndOptions(); // Recalculate to update dynamic text in outputs
+        }
+
+        languageSelect.addEventListener('change', (event) => {
+            setLanguage(event.target.value);
+        });
+
+        // --- Utility Functions ---
+
+        function showMessage(messageKey, params = {}) {
+            let message = translations[currentLanguage][messageKey] || messageKey;
+            for (const key in params) {
+                message = message.replace(`{${key}}`, params[key]);
+            }
+            modalMessage.textContent = message;
+            messageModal.style.display = 'flex'; // Use flex to center
+        }
+
+        function hideMessage() {
+            modalMessage.textContent = ''; // Clear message on hide
+            messageModal.style.display = 'none';
+        }
+
+        modalCloseBtn.addEventListener('click', hideMessage);
+        closeButton.addEventListener('click', hideMessage);
+        window.addEventListener('click', (event) => {
+            if (event.target == messageModal) {
+                hideMessage();
+            }
+        });
+
+        /**
+         * Converts a value from one area unit to another.
+         * @param {number} value - The value to convert.
+         * @param {string} unitFrom - The unit to convert from ('decimal' or 'sqft').
+         * @param {string} unitTo - The unit to convert to ('decimal' or 'sqft').
+         * @returns {number} The converted value.
+         */
+        function convertArea(value, unitFrom, unitTo) {
+            if (unitFrom === unitTo) return value;
+            if (unitFrom === 'decimal' && unitTo === 'sqft') {
+                return value * SQFT_PER_DECIMAL;
+            } else if (unitFrom === 'sqft' && unitTo === 'decimal') {
+                return value / SQFT_PER_DECIMAL;
+            }
+            return value; // Should not happen with valid inputs
+        }
+
+        /**
+         * Formats a square footage value into a string showing both sq ft and decimal.
+         * @param {number} sqft - The area in square feet.
+         * @returns {string} Formatted string.
+         */
+        function formatArea(sqft) {
+            const decimal = sqft / SQFT_PER_DECIMAL;
+            return `${sqft.toFixed(2)} ${translations[currentLanguage].sqFt} (${decimal.toFixed(2)} ${translations[currentLanguage].decimal})`;
+        }
+
+        /**
+         * Parses a string like "6'2''" into total feet as a float.
+         * Handles feet only ("10'"), inches only ("5''"), or both.
+         * @param {string} inputString - The input string (e.g., "6'2''").
+         * @returns {number} Total feet as a float, or 0 if invalid.
+         */
+        function parseFeetInches(inputString) {
+            if (!inputString) return 0;
+            let totalFeet = 0;
+            const feetMatch = inputString.match(/(\d+)'/); // Matches digits followed by '
+            const inchesMatch = inputString.match(/(\d+)''/); // Matches digits followed by ''
+
+            if (feetMatch) {
+                totalFeet += parseFloat(feetMatch[1]);
+            }
+            if (inchesMatch) {
+                totalFeet += parseFloat(inchesMatch[1]) / 12;
+            }
+            return totalFeet;
+        }
+
+        /**
+         * Retrieves current unit areas from input fields.
+         * @returns {object} An object containing unit areas (A-F, Stairs).
+         */
+        function getUnitAreas() {
+            return {
+                A: parseFloat(unitAInput.value) || 0,
+                B: parseFloat(unitBInput.value) || 0,
+                C: parseFloat(unitCInput.value) || 0,
+                D: parseFloat(unitDInput.value) || 0,
+                E: parseFloat(unitEInput.value) || 0,
+                F: parseFloat(unitFInput.value) || 0,
+                Stairs: parseFloat(unitStairsInput.value) || 0
+            };
+        }
+
+        /**
+         * Parses a preference order string (e.g., "4>5>6" or "C>A>B") into an array,
+         * handling both English and Bengali numerals/characters.
+         * @param {string} orderString - The input string.
+         * @returns {Array<string|number>} An array of preferred items.
+         */
+        function parsePreferenceOrder(orderString) {
+            if (!orderString) return [];
+            // Convert any Bengali numerals to English before parsing
+            const processedString = convertBengaliNumeralsToEnglish(orderString);
+
+            return processedString.split('>').map(item => {
+                const trimmedItem = item.trim();
+                const num = parseInt(trimmedItem);
+                return isNaN(num) ? trimmedItem.toUpperCase() : num;
+            }).filter(item => item !== '');
+        }
+
+        // --- Local Storage Functions ---
+
+        /**
+         * Saves current input values to local storage as defaults.
+         */
+        function saveDefaults() {
+            const defaults = {
+                propertyArea: propertyAreaInput.value,
+                propertyUnit: propertyUnitSelect.value,
+                lengthFront: lengthFrontInput.value,
+                lengthBack: lengthBackInput.value,
+                widthRight: widthRightInput.value,
+                widthLeft: widthLeftInput.value,
+                unitA: unitAInput.value,
+                unitB: unitBInput.value,
+                unitC: unitCInput.value,
+                unitD: unitDInput.value,
+                unitE: unitEInput.value,
+                unitF: unitFInput.value,
+                unitStairs: unitStairsInput.value,
+                zakariaShare: zakariaShareInput.value,
+                zakariaShareRatio: zakariaShareRatioInput.value, // Save ratio
+                compensationAmount: compensationAmountInput.value,
+                compensationType: document.querySelector('input[name="compensationType"]:checked').value,
+                durationValue: durationValueInput.value,
+                durationUnit: durationUnitSelect.value,
+                interestRate: interestRateInput.value,
+                inflationRate: inflationRateInput.value, // Save inflation rate
+                floorPreferenceOrder: floorPreferenceOrderInput.value, // Save preferences
+                unitPreferenceOrder: unitPreferenceOrderInput.value,
+                mustFeatureUnit1: mustFeatureUnit1Select.value, // Save filter settings
+                mustFeatureUnit2: mustFeatureUnit2Select.value,
+                mustNotFeatureUnit1: mustNotFeatureUnit1Select.value,
+                mustNotFeatureUnit2: mustNotFeatureUnit2Select.value
+            };
+            localStorage.setItem('propertyEvaluatorDefaults', JSON.stringify(defaults));
+            showMessage('msgDefaultsSaved');
+        }
+
+        /**
+         * Loads default values from local storage into input fields.
+         */
+        function loadDefaults() {
+            const defaults = JSON.parse(localStorage.getItem('propertyEvaluatorDefaults'));
+            if (defaults) {
+                propertyAreaInput.value = defaults.propertyArea || '';
+                propertyUnitSelect.value = defaults.propertyUnit || 'decimal';
+                lengthFrontInput.value = defaults.lengthFront || '';
+                lengthBackInput.value = defaults.lengthBack || '';
+                widthRightInput.value = defaults.widthRight || '';
+                widthLeftInput.value = defaults.widthLeft || '';
+                unitAInput.value = defaults.unitA || '';
+                unitBInput.value = defaults.unitB || '';
+                unitCInput.value = defaults.unitC || '';
+                unitDInput.value = defaults.unitD || '';
+                unitEInput.value = defaults.unitE || '';
+                unitFInput.value = defaults.unitF || '';
+                unitStairsInput.value = defaults.unitStairs || '';
+                zakariaShareInput.value = defaults.zakariaShare || '16';
+                zakariaShareRatioInput.value = defaults.zakariaShareRatio || ''; // Load ratio
+                compensationAmountInput.value = defaults.compensationAmount || '';
+                document.querySelector(`input[name="compensationType"][value="${defaults.compensationType || 'total'}"]`).checked = true;
+                durationValueInput.value = defaults.durationValue || '';
+                durationUnitSelect.value = defaults.durationUnit || 'years';
+                interestRateInput.value = defaults.interestRate || '';
+                inflationRateInput.value = defaults.inflationRate || ''; // Load inflation rate
+                floorPreferenceOrderInput.value = defaults.floorPreferenceOrder || ''; // Load preferences
+                unitPreferenceOrderInput.value = defaults.unitPreferenceOrder || '';
+                mustFeatureUnit1Select.value = defaults.mustFeatureUnit1 || ''; // Load filter settings
+                mustFeatureUnit2Select.value = defaults.mustFeatureUnit2 || '';
+                mustNotFeatureUnit1Select.value = defaults.mustNotFeatureUnit1 || '';
+                mustNotFeatureUnit2Select.value = defaults.mustNotFeatureUnit2 || '';
+
+
+                updatePropertyAreaConversion(); // Update conversion display on load
+                showMessage('msgDefaultsLoaded');
+            } else {
+                showMessage('msgNoDefaultsFound');
+            }
+        }
+
+        /**
+         * Clears all input fields and removes defaults from local storage.
+         */
+        function resetDefaults() {
+            localStorage.removeItem('propertyEvaluatorDefaults');
+            // Clear all inputs
+            propertyAreaInput.value = '';
+            propertyUnitSelect.value = 'decimal';
+            lengthFrontInput.value = '';
+            lengthBackInput.value = '';
+            widthRightInput.value = '';
+            widthLeftInput.value = '';
+            unitAInput.value = '';
+            unitBInput.value = '';
+            unitCInput.value = '';
+            unitDInput.value = '';
+            unitEInput.value = '';
+            unitFInput.value = '';
+            unitStairsInput.value = '';
+            zakariaShareInput.value = '16';
+            zakariaShareRatioInput.value = ''; // Reset ratio
+            compensationAmountInput.value = '';
+            document.querySelector('input[name="compensationType"][value="total"]').checked = true;
+            durationValueInput.value = '';
+            durationUnitSelect.value = 'years';
+            interestRateInput.value = '';
+            inflationRateInput.value = ''; // Reset inflation rate
+            floorPreferenceOrderInput.value = ''; // Reset preferences
+            unitPreferenceOrderInput.value = '';
+            mustFeatureUnit1Select.value = ''; // Reset filter settings
+            mustFeatureUnit2Select.value = '';
+            mustNotFeatureUnit1Select.value = '';
+            mustNotFeatureUnit2Select.value = '';
+
+            updatePropertyAreaConversion();
+            showMessage('msgDefaultsReset');
+            calculateShareAndOptions(); // Recalculate with cleared values
+        }
+
+        // --- Property Area Conversion Display ---
+        /**
+         * Updates the display of property area conversion (Sq Ft / Decimal).
+         */
+        function updatePropertyAreaConversion() {
+            const value = parseFloat(propertyAreaInput.value);
+            const unit = propertyUnitSelect.value;
+            if (isNaN(value) || value <= 0) {
+                propertyAreaConvertedP.textContent = '';
+                return;
+            }
+
+            let sqft, decimal;
+            if (unit === 'decimal') {
+                sqft = convertArea(value, 'decimal', 'sqft');
+                decimal = value;
+            } else { // sqft
+                sqft = value;
+                decimal = convertArea(value, 'sqft', 'decimal');
+            }
+            propertyAreaConvertedP.textContent = `(${sqft.toFixed(2)} ${translations[currentLanguage].sqFtShort} / ${decimal.toFixed(2)} ${translations[currentLanguage].decimal})`;
+        }
+
+        propertyAreaInput.addEventListener('input', updatePropertyAreaConversion);
+        propertyUnitSelect.addEventListener('change', updatePropertyAreaConversion);
+
+        // --- Zakaria Share Ratio Sync ---
+        zakariaShareInput.addEventListener('input', () => {
+            const numApartments = parseInt(zakariaShareInput.value);
+            if (!isNaN(numApartments) && numApartments >= 0 && numApartments <= TOTAL_APARTMENTS) {
+                const ratio = (numApartments / TOTAL_APARTMENTS) * 100;
+                zakariaShareRatioInput.value = ratio.toFixed(2);
+            } else {
+                zakariaShareRatioInput.value = '';
+            }
+        });
+
+        zakariaShareRatioInput.addEventListener('input', () => {
+            const ratio = parseFloat(zakariaShareRatioInput.value);
+            if (!isNaN(ratio) && ratio >= 0 && ratio <= 100) {
+                const numApartments = Math.round((ratio / 100) * TOTAL_APARTMENTS);
+                zakariaShareInput.value = numApartments;
+            } else {
+                zakariaShareInput.value = '';
+            }
+        });
+
+
+        // --- Apartment Selection Grid (Floor-Unit View) ---
+        /**
+         * Generates the grid of 42 individual apartment cards for selection.
+         */
+        function generateApartmentGrid() {
+            apartmentSelectionGrid.innerHTML = '';
+            const units = UNIT_TYPES_ORDERED; // Use the new defined order
+            const currentUnitAreas = getUnitAreas(); // Get current unit areas
+
+            // Create 7 floors * 6 units/floor = 42 apartment cards
+            for (let floor = 1; floor <= TOTAL_FLOORS; floor++) {
+                units.forEach(unitType => {
+                    const id = `F${floor}${unitType}`;
+                    const area = currentUnitAreas[unitType];
+                    const card = document.createElement('div');
+                    card.className = 'unit-card';
+                    card.dataset.id = id;
+                    card.dataset.area = area;
+
+                    card.innerHTML = `
+                        <input type="checkbox" class="apartment-checkbox">
+                        <span>${translations[currentLanguage].floorText} ${floor} - ${translations[currentLanguage].unitText} ${unitType}</span>
+                        <p>${area.toFixed(2)} ${translations[currentLanguage].sqFtShort}</p>
+                    `;
+                    apartmentSelectionGrid.appendChild(card);
+
+                    // Add click listener to the card (not just the checkbox)
+                    card.addEventListener('click', (event) => {
+                        // Prevent click on card from toggling checkbox twice if checkbox itself is clicked
+                        if (event.target.type !== 'checkbox') {
+                            const checkbox = card.querySelector('.apartment-checkbox');
+                            checkbox.checked = !checkbox.checked;
+                            handleApartmentSelection(checkbox);
+                        }
+                    });
+
+                    // Add change listener directly to the checkbox for proper handling
+                    card.querySelector('.apartment-checkbox').addEventListener('change', (event) => {
+                        handleApartmentSelection(event.target);
+                    });
+                });
+            }
+            updateSelectedApartmentsDisplay(); // Initialize display
+        }
+
+        /**
+         * Handles selection/deselection of an apartment checkbox.
+         * @param {HTMLInputElement} checkbox - The checkbox element.
+         */
+        function handleApartmentSelection(checkbox) {
+            const card = checkbox.closest('.unit-card');
+            if (checkbox.checked) {
+                const selectedCount = document.querySelectorAll('.apartment-checkbox:checked').length;
+                if (selectedCount > munirFamilyRequiredApartments) {
+                    checkbox.checked = false; // Prevent selection if limit exceeded
+                    showMessage('msgOnlySelectApartments', { count: munirFamilyRequiredApartments });
+                    return;
+                }
+                card.classList.add('selected');
+            } else {
+                card.classList.remove('selected');
+            }
+            updateSelectedApartmentsDisplay();
+        }
+
+        /**
+         * Updates the display of selected apartment count and total area.
+         */
+        function updateSelectedApartmentsDisplay() {
+            const selectedCheckboxes = document.querySelectorAll('.apartment-checkbox:checked');
+            let totalSelectedArea = 0;
+            selectedCheckboxes.forEach(checkbox => {
+                const card = checkbox.closest('.unit-card');
+                totalSelectedArea += parseFloat(card.dataset.area);
+            });
+
+            selectedCountSpan.textContent = selectedCheckboxes.length;
+            selectedApartmentsTotalAreaSpan.textContent = `${totalSelectedArea.toFixed(2)} ${translations[currentLanguage].sqFtShort}`;
+
+            const difference = totalSelectedArea - munirFamilyShareSqFt;
+            selectedApartmentsDifferenceSpan.textContent = `${difference.toFixed(2)} ${translations[currentLanguage].sqFtShort}`;
+            selectedApartmentsDifferenceSpan.classList.remove('positive', 'negative');
+            if (difference > 0) {
+                selectedApartmentsDifferenceSpan.classList.add('positive');
+            } else if (difference < 0) {
+                selectedApartmentsDifferenceSpan.classList.add('negative');
+            }
+        }
+
+        // --- Unit-Based Information View & Selection ---
+        /**
+         * Generates the informational grid for unit types (A-F) with quantity inputs.
+         */
+        function generateUnitInfoGrid() {
+            unitInfoGrid.innerHTML = '';
+            const units = UNIT_TYPES_ORDERED; // Use the new defined order
+            const currentUnitAreas = getUnitAreas();
+
+            // Initialize selectedUnitTypeQuantities if not already done or reset
+            if (Object.keys(selectedUnitTypeQuantities).length === 0) {
+                units.forEach(unitType => {
+                    selectedUnitTypeQuantities[unitType] = 0;
+                });
+            }
+
+            units.forEach(unitType => {
+                const area = currentUnitAreas[unitType];
+                const card = document.createElement('div');
+                card.className = 'unit-info-card';
+                card.innerHTML = `
+                    <span>${translations[currentLanguage].unitText} ${unitType}</span>
+                    <p>${area.toFixed(2)} ${translations[currentLanguage].sqFtShort}</p>
+                    <p>(7 ${translations[currentLanguage].availableAcrossFloors})</p>
+                    <input type="number" class="unit-selection-input" data-unit-type="${unitType}" value="${selectedUnitTypeQuantities[unitType]}" min="0" max="7">
+                `;
+                unitInfoGrid.appendChild(card);
+
+                const input = card.querySelector('.unit-selection-input');
+                input.addEventListener('input', (event) => {
+                    handleUnitTypeSelection(event.target);
+                });
+            });
+            updateSelectedUnitTypesDisplay(); // Initialize display
+        }
+
+        /**
+         * Handles quantity selection for unit types in the unit-based view.
+         * @param {HTMLInputElement} input - The number input element.
+         */
+        function handleUnitTypeSelection(input) {
+            const unitType = input.dataset.unitType;
+            let quantity = parseInt(input.value) || 0;
+
+            // Ensure quantity is within bounds
+            if (quantity < 0) quantity = 0;
+            if (quantity > 7) quantity = 7; // Max 7 of each unit type
+
+            selectedUnitTypeQuantities[unitType] = quantity;
+
+            // Check total selected units
+            let totalSelectedUnits = 0;
+            for (const type in selectedUnitTypeQuantities) {
+                totalSelectedUnits += selectedUnitTypeQuantities[type];
+            }
+
+            if (totalSelectedUnits > munirFamilyRequiredApartments) {
+                // If exceeding, adjust the current input back
+                quantity -= (totalSelectedUnits - munirFamilyRequiredApartments);
+                if (quantity < 0) quantity = 0; // Ensure it doesn't go negative
+                selectedUnitTypeQuantities[unitType] = quantity;
+                input.value = quantity; // Update the input field
+                showMessage('msgOnlySelectTotalUnits', { count: munirFamilyRequiredApartments });
+            }
+
+            updateSelectedUnitTypesDisplay();
+        }
+
+        /**
+         * Updates the display for selected unit types (count, total area, difference).
+         */
+        function updateSelectedUnitTypesDisplay() {
+            let totalSelectedUnits = 0;
+            let totalSelectedArea = 0;
+            for (const unitType in selectedUnitTypeQuantities) {
+                totalSelectedUnits += selectedUnitTypeQuantities[unitType];
+                totalSelectedArea += selectedUnitTypeQuantities[unitType] * unitAreas[unitType];
+            }
+
+            selectedUnitTypesCountSpan.textContent = totalSelectedUnits;
+            selectedUnitTypesTotalAreaSpan.textContent = `${totalSelectedArea.toFixed(2)} ${translations[currentLanguage].sqFtShort}`;
+
+            const difference = totalSelectedArea - munirFamilyShareSqFt;
+            selectedUnitTypesDifferenceSpan.textContent = `${difference.toFixed(2)} ${translations[currentLanguage].sqFtShort}`;
+            selectedUnitTypesDifferenceSpan.classList.remove('positive', 'negative');
+            if (difference > 0) {
+                selectedUnitTypesDifferenceSpan.classList.add('positive');
+            } else if (difference < 0) {
+                selectedUnitTypesDifferenceSpan.classList.add('negative');
+            }
+        }
+
+
+        // --- Combinations Logic ---
+
+        /**
+         * Generates all combinations of k elements from an array.
+         * @param {Array} arr - The array to get combinations from.
+         * @param {number} k - The number of elements in each combination.
+         * @returns {Array<Array>} An array of combinations.
+         */
+        function getCombinations(arr, k) {
+            const result = [];
+            function backtrack(start, currentCombination) {
+                if (currentCombination.length === k) {
+                    result.push([...currentCombination]);
+                    return;
+                }
+                for (let i = start; i < arr.length; i++) {
+                    currentCombination.push(arr[i]);
+                    backtrack(i + 1, currentCombination);
+                    currentCombination.pop();
+                }
+            }
+            backtrack(0, []);
+            return result;
+        }
+
+        /**
+         * Generates combinations based on unit types and their counts.
+         * @param {Array<string>} unitTypes - Array of unit type names (e.g., ['A', 'B', 'C']).
+         * @param {number} k - The total number of units to select.
+         * @returns {Array<object>} An array of combinations, each being an object like {A: 2, B: 1}.
+         */
+        function getUnitTypeCombinations(unitTypes, k) {
+            const combinations = [];
+            function backtrack(index, currentCounts, currentSum) {
+                if (currentSum === k) {
+                    combinations.push({ ...currentCounts });
+                    return;
+                }
+                if (currentSum > k || index === unitTypes.length) {
+                    return;
+                }
+
+                const currentUnit = unitTypes[index];
+                // Max 7 of each unit type (TOTAL_FLOORS)
+                for (let count = 0; count <= Math.min(k - currentSum, TOTAL_FLOORS); count++) {
+                    currentCounts[currentUnit] = count;
+                    backtrack(index + 1, currentCounts, currentSum + count);
+                }
+                delete currentCounts[currentUnit]; // Backtrack
+            }
+
+            // Start with an empty counts object for all unit types
+            const initialCounts = {};
+            unitTypes.forEach(type => initialCounts[type] = 0);
+            backtrack(0, initialCounts, 0);
+            return combinations;
+        }
+
+
+        /**
+         * Calculates a preference score for a combination. Lower score is better.
+         * @param {Array<string>} apartmentIds - Array of apartment IDs (e.g., ["F4C", "F5A"]).
+         * @param {object} unitTypeCounts - Object with unit type counts (e.g., {A: 2, B: 1}).
+         * @param {Array<number>} floorPrefs - Parsed floor preference array.
+         * @param {Array<string>} unitPrefs - Parsed unit preference array.
+         * @returns {number} The preference score.
+         */
+        function getPreferenceScore(apartmentIds, unitTypeCounts, floorPrefs, unitPrefs) {
+            let score = 0;
+            const maxScore = 1000; // A large number to penalize non-preferred items heavily
+
+            if (apartmentIds && apartmentIds.length > 0) { // For Floor-Unit View combinations
+                apartmentIds.forEach(aptId => {
+                    const floor = parseInt(aptId.substring(1, aptId.length - 1));
+                    const unitType = aptId.slice(-1);
+
+                    const floorIndex = floorPrefs.indexOf(floor);
+                    const unitIndex = unitPrefs.indexOf(unitType);
+
+                    score += (floorIndex === -1 ? maxScore : floorIndex);
+                    score += (unitIndex === -1 ? maxScore : unitIndex);
+                });
+            } else if (unitTypeCounts) { // For Unit-Based View combinations
+                for (const type in unitTypeCounts) {
+                    const count = unitTypeCounts[type];
+                    const unitIndex = unitPrefs.indexOf(type);
+                    score += count * (unitIndex === -1 ? maxScore : unitIndex);
+                }
+            }
+            return score;
+        }
+
+        /**
+         * Checks if a combination satisfies the "must feature" and "must not feature" filters.
+         * @param {object} combo - The combination object (either array of IDs or unitTypeCounts).
+         * @param {boolean} isFloorUnitView - True if checking for floor-unit view.
+         * @param {Array<string>} mustIncludeUnits - Units that must be present.
+         * @param {Array<string>} mustExcludeUnits - Units that must NOT be present.
+         * @returns {boolean} True if the combination passes the filters, false otherwise.
+         */
+        function passesFilters(combo, isFloorUnitView, mustIncludeUnits, mustExcludeUnits) {
+            // Check "must include" units
+            for (const unitToInclude of mustIncludeUnits) {
+                let found = false;
+                if (isFloorUnitView) {
+                    // For Floor-Unit view, check if any apartment in the combo has this unit type
+                    found = combo.apartments.some(aptId => aptId.slice(-1) === unitToInclude);
+                } else {
+                    // For Unit-Based view, check if the count for this unit type is > 0
+                    found = combo.apartments[unitToInclude] > 0;
+                }
+                if (!found) return false; // If a required unit is not found, filter out
+            }
+
+            // Check "must exclude" units
+            for (const unitToExclude of mustExcludeUnits) {
+                let found = false;
+                if (isFloorUnitView) {
+                    // For Floor-Unit view, check if any apartment in the combo has this unit type
+                    found = combo.apartments.some(aptId => aptId.slice(-1) === unitToExclude);
+                } else {
+                    // For Unit-Based view, check if the count for this unit type is > 0
+                    found = combo.apartments[unitToExclude] > 0;
+                }
+                if (found) return false; // If an excluded unit is found, filter out
+            }
+
+            return true; // Passes all filters
+        }
+
+
+        /**
+         * Calculates and returns the top apartment combinations closest to the target area,
+         * considering user preferences and optional filters.
+         * @param {Array<string>} allApartments - Array of all apartment IDs (e.g., "F1A").
+         * @param {number} targetArea - The target area (Munir family's share) in Sq Ft.
+         * @param {boolean} isFloorUnitView - True if calculating for floor-unit view, false for unit-based.
+         * @param {Array<string>} mustIncludeUnits - Units that must be present (from filters).
+         * @param {Array<string>} mustExcludeUnits - Units that must NOT be present (from filters).
+         * @returns {Array<object>} An array of the top combinations.
+         */
+        function calculateTopCombinations(allApartments, targetArea, isFloorUnitView, mustIncludeUnits = [], mustExcludeUnits = []) {
+            const currentUnitAreas = getUnitAreas();
+            if (Object.values(currentUnitAreas).some(area => area === 0)) {
+                return []; // Cannot calculate meaningfully without unit areas
+            }
+
+            let allCombos = [];
+            if (isFloorUnitView) {
+                allCombos = getCombinations(allApartments, munirFamilyRequiredApartments);
+            } else {
+                allCombos = getUnitTypeCombinations(UNIT_TYPES_ORDERED, munirFamilyRequiredApartments);
+            }
+
+            const validCombinations = [];
+            const floorPrefs = parsePreferenceOrder(floorPreferenceOrderInput.value);
+            const unitPrefs = parsePreferenceOrder(unitPreferenceOrderInput.value);
+
+            allCombos.forEach(combo => {
+                let comboArea = 0;
+                let preferenceScore = 0;
+
+                if (isFloorUnitView) {
+                    combo.forEach(aptId => {
+                        const unitType = aptId.slice(-1);
+                        comboArea += currentUnitAreas[unitType];
+                    });
+                    preferenceScore = getPreferenceScore(combo, null, floorPrefs, unitPrefs);
+                } else { // Unit-Based View
+                    for (const type in combo) {
+                        comboArea += combo[type] * currentUnitAreas[type];
+                    }
+                    preferenceScore = getPreferenceScore(null, combo, floorPrefs, unitPrefs);
+                }
+
+                const difference = comboArea - targetArea;
+                const comboObject = {
+                    apartments: combo, // This will be array of IDs or unitTypeCounts object
+                    area: comboArea,
+                    difference: difference,
+                    preferenceScore: preferenceScore
+                };
+
+                // Apply filters
+                if (passesFilters(comboObject, isFloorUnitView, mustIncludeUnits, mustExcludeUnits)) {
+                    validCombinations.push(comboObject);
+                }
+            });
+
+            // Sort: Primary by absolute difference, Secondary by preference score
+            validCombinations.sort((a, b) => {
+                const diffA = Math.abs(a.difference);
+                const diffB = Math.abs(b.difference);
+
+                if (diffA !== diffB) {
+                    return diffA - diffB;
+                }
+                return a.preferenceScore - b.preferenceScore; // Prefer lower score
+            });
+
+            return validCombinations; // Return all, then slice for top 5 or all
+        }
+
+        /**
+         * Displays the calculated top combinations in the UI.
+         * @param {Array<object>} combinations - The array of top combinations to display.
+         * @param {boolean} isFloorUnitView - True if displaying for floor-unit view, false for unit-based.
+         */
+        function displayTopCombinations(combinations, isFloorUnitView) {
+            topCombinationsList.innerHTML = '';
+            if (combinations.length === 0) {
+                topCombinationsList.innerHTML = `<p class="text-gray-500">${translations[currentLanguage].msgNoCombinationsFound}</p>`;
+                return;
+            }
+
+            combinations.forEach(combo => {
+                const div = document.createElement('div');
+                div.className = 'combination-item';
+                const diffClass = combo.difference > 0 ? 'positive' : (combo.difference < 0 ? 'negative' : '');
+
+                let comboDisplay = '';
+                if (isFloorUnitView) {
+                    comboDisplay = combo.apartments.join(', ');
+                } else { // Unit-Based View
+                    comboDisplay = Object.keys(combo.apartments)
+                        .filter(type => combo.apartments[type] > 0)
+                        .map(type => `${combo.apartments[type]} ${type}`)
+                        .join(', ');
+                }
+
+                div.innerHTML = `
+                    <span>${comboDisplay}</span>
+                    <div>
+                        <span>${translations[currentLanguage].propertyAreaOutput.replace(':', '')}: ${combo.area.toFixed(2)} ${translations[currentLanguage].sqFtShort}</span>
+                        <span class="diff ${diffClass}"> (${combo.difference > 0 ? '+' : ''}${combo.difference.toFixed(2)} ${translations[currentLanguage].sqFtShort})</span>
+                    </div>
+                `;
+                topCombinationsList.appendChild(div);
+            });
+        }
+
+
+        // --- Main Calculation Logic ---
+
+        /**
+         * Performs all calculations and updates the UI.
+         */
+        function calculateShareAndOptions() {
+            // 1. Get Input Values
+            const propertyAreaValue = parseFloat(propertyAreaInput.value);
+            const propertyAreaUnit = propertyUnitSelect.value;
+
+            // Get unit areas including stairs
+            unitAreas = getUnitAreas();
+            const unitA = unitAreas.A;
+            const unitB = unitAreas.B;
+            const unitC = unitAreas.C;
+            const unitD = unitAreas.D;
+            const unitE = unitAreas.E;
+            const unitF = unitAreas.F;
+            const unitStairs = unitAreas.Stairs;
+
+
+            const zakariaShare = parseInt(zakariaShareInput.value);
+            const compensationAmount = parseFloat(compensationAmountInput.value) || 0;
+            const compensationType = document.querySelector('input[name="compensationType"]:checked').value;
+            const durationValue = parseFloat(durationValueInput.value) || 0;
+            const durationUnit = durationUnitSelect.value;
+            const interestRate = parseFloat(interestRateInput.value) || 0;
+            const inflationRate = parseFloat(inflationRateInput.value) || 0; // Get inflation rate
+
+            // Input Validation
+            if (isNaN(propertyAreaValue) || propertyAreaValue <= 0) {
+                showMessage('msgEnterValidPropertyArea');
+                return;
+            }
+            if (isNaN(zakariaShare) || zakariaShare <= 0 || zakariaShare > TOTAL_APARTMENTS) {
+                showMessage('msgEnterValidZakariaShare');
+                return;
+            }
+            if (unitA <= 0 || unitB <= 0 || unitC <= 0 || unitD <= 0 || unitE <= 0 || unitF <= 0 || unitStairs <= 0) {
+                showMessage('msgEnterPositiveUnitAreas');
+                return;
+            }
+
+
+            // 2. Calculate Property & Building Details
+            let totalPropertyAreaSqFt = convertArea(propertyAreaValue, propertyAreaUnit, 'sqft');
+            outputPropertyArea.textContent = formatArea(totalPropertyAreaSqFt);
+
+            // Calculate Total Building Area based on specific unit areas * 7 floors
+            const areaPerFloorFootprint = unitA + unitB + unitC + unitD + unitE + unitF + unitStairs;
+            const totalBuildingAreaSqFt = areaPerFloorFootprint * TOTAL_FLOORS;
+
+            outputBuildingAreaPerFloor.textContent = formatArea(areaPerFloorFootprint);
+            outputBuildingArea.textContent = formatArea(totalBuildingAreaSqFt);
+
+            // Surrounding Area (land not covered by building's footprint)
+            const surroundingAreaSqFt = totalPropertyAreaSqFt - areaPerFloorFootprint;
+            outputSurroundingArea.textContent = formatArea(surroundingAreaSqFt);
+
+
+            // 3. Munir Family's Share
+            munirFamilyRequiredApartments = Math.floor(zakariaShare / 4); // Integer division
+            if (munirFamilyRequiredApartments === 0) munirFamilyRequiredApartments = 1; // Ensure at least 1 if share is very low
+            requiredApartmentsSpan.textContent = munirFamilyRequiredApartments;
+            requiredApartmentsUnitBasedSpan.textContent = munirFamilyRequiredApartments; // Update for unit-based view
+
+            // Approximate Munir family share based on average DIVISIBLE apartment area (excluding stairs)
+            const totalDivisibleAreaPerFloor = unitA + unitB + unitC + unitD + unitE + unitF;
+            const totalDivisibleBuildingAreaSqFt = totalDivisibleAreaPerFloor * TOTAL_FLOORS;
+            const averageDivisibleApartmentArea = totalDivisibleBuildingAreaSqFt / TOTAL_APARTMENTS; // Still divide by total apartments (42)
+
+            munirFamilyShareSqFt = averageDivisibleApartmentArea * munirFamilyRequiredApartments;
+            outputMunirApartments.textContent = `${munirFamilyRequiredApartments} ${translations[currentLanguage].ourShareOfApartments.split(':')[0].trim()}`;
+            outputMunirShareApprox.textContent = formatArea(munirFamilyShareSqFt); // Removed percentage
+
+
+            // Munir's share of compensation
+            const munirCompensation = compensationAmount / 4;
+            outputMunirCompensation.textContent = `${munirCompensation.toFixed(2)} ${translations[currentLanguage].offeredCompensation.split('(')[1].replace(')', '')} (${compensationType === 'monthly' ? translations[currentLanguage].monthlyPayment : translations[currentLanguage].totalPayment})`;
+
+            // Discounted Compensation Value (Present Value) - Nominal and Real
+            let discountedCompensationNominal = 0;
+            let discountedCompensationReal = 0;
+
+            if (compensationType === 'monthly' && durationValue > 0 && interestRate > 0) {
+                const monthlyInterestRate = (interestRate / 100) / 12;
+                const monthlyInflationRate = (inflationRate / 100) / 12;
+                const totalMonths = durationUnit === 'years' ? durationValue * 12 : durationValue;
+
+                // Nominal Discounted Value
+                discountedCompensationNominal = munirCompensation * (1 - Math.pow(1 + monthlyInterestRate, -totalMonths)) / monthlyInterestRate;
+                outputDiscountedCompensationNominal.textContent = `${discountedCompensationNominal.toFixed(2)} ${translations[currentLanguage].offeredCompensation.split('(')[1].replace(')', '')}`;
+
+                // Real Discounted Value
+                // Calculate real interest rate: ((1 + nominal_rate) / (1 + inflation_rate)) - 1
+                if (1 + monthlyInflationRate === 0) { // Avoid division by zero
+                    discountedCompensationReal = 0; // Or handle as an error
+                } else {
+                    const realMonthlyInterestRate = ((1 + monthlyInterestRate) / (1 + monthlyInflationRate)) - 1;
+                    if (realMonthlyInterestRate !== 0) {
+                        discountedCompensationReal = munirCompensation * (1 - Math.pow(1 + realMonthlyInterestRate, -totalMonths)) / realMonthlyInterestRate;
+                    } else {
+                        // If real interest rate is effectively zero, PV is just sum of payments
+                        discountedCompensationReal = munirCompensation * totalMonths;
+                    }
+                }
+                outputDiscountedCompensationReal.textContent = `${discountedCompensationReal.toFixed(2)} ${translations[currentLanguage].offeredCompensation.split('(')[1].replace(')', '')}`;
+
+            } else if (compensationType === 'total') {
+                discountedCompensationNominal = munirCompensation; // If total, no discounting needed for nominal
+                outputDiscountedCompensationNominal.textContent = `${discountedCompensationNominal.toFixed(2)} ${translations[currentLanguage].offeredCompensation.split('(')[1].replace(')', '')}`;
+
+                // For a single total payment, real value is just nominal adjusted by total inflation over duration
+                const totalDurationInYears = durationUnit === 'years' ? durationValue : durationValue / 12;
+                if (totalDurationInYears > 0 && inflationRate > 0) {
+                    discountedCompensationReal = munirCompensation / Math.pow(1 + (inflationRate / 100), totalDurationInYears);
+                } else {
+                    discountedCompensationReal = munirCompensation; // No inflation or zero duration
+                }
+                outputDiscountedCompensationReal.textContent = `${discountedCompensationReal.toFixed(2)} ${translations[currentLanguage].offeredCompensation.split('(')[1].replace(')', '')}`;
+
+            } else {
+                outputDiscountedCompensationNominal.textContent = translations[currentLanguage].msgInvalidDurationInterest;
+                outputDiscountedCompensationReal.textContent = translations[currentLanguage].msgInvalidDurationInterest;
+            }
+
+
+            // 4. Apartment Combinations
+            generateApartmentGrid(); // Re-generate grid with updated unit areas for Floor-Unit View
+            generateUnitInfoGrid(); // Generate info cards for Unit-Based View
+
+            // Clear previous selections for Floor-Unit View
+            document.querySelectorAll('.apartment-checkbox').forEach(cb => {
+                cb.checked = false;
+                cb.closest('.unit-card').classList.remove('selected');
+            });
+            updateSelectedApartmentsDisplay();
+
+            // Reset selectedUnitTypeQuantities and update display for Unit-Based View
+            UNIT_TYPES_ORDERED.forEach(unitType => {
+                selectedUnitTypeQuantities[unitType] = 0;
+            });
+            updateSelectedUnitTypesDisplay();
+
+
+            // Generate all possible apartment IDs for Floor-Unit combinations
+            const allApartmentIds = [];
+            for (let floor = 1; floor <= TOTAL_FLOORS; floor++) {
+                UNIT_TYPES_ORDERED.forEach(unitType => { // Use ordered units
+                    allApartmentIds.push(`F${floor}${unitType}`);
+                });
+            }
+
+            // Get filter values
+            const mustIncludeUnits = [mustFeatureUnit1Select.value, mustFeatureUnit2Select.value].filter(val => val !== '');
+            const mustExcludeUnits = [mustNotFeatureUnit1Select.value, mustNotFeatureUnit2Select.value].filter(val => val !== '');
+
+
+            // Calculate top 5 combinations for the currently active view
+            const isFloorUnitActive = floorUnitViewRadio.checked;
+            const topCombinations = calculateTopCombinations(allApartmentIds, munirFamilyShareSqFt, isFloorUnitActive, mustIncludeUnits, mustExcludeUnits);
+            displayTopCombinations(topCombinations.slice(0, 5), isFloorUnitActive); // Show only top 5 initially
+        }
+
+        // --- Event Listeners ---
+        calculateBtn.addEventListener('click', calculateShareAndOptions);
+        setDefaultsBtn.addEventListener('click', saveDefaults);
+        resetDefaultsBtn.addEventListener('click', resetDefaults);
+
+        // Event listeners for view toggle
+        floorUnitViewRadio.addEventListener('change', () => {
+            floorUnitSelectionSection.style.display = 'block';
+            unitBasedInfoSection.style.display = 'none';
+            // Recalculate and display top combinations for the active view
+            const allApartmentIds = [];
+            for (let floor = 1; floor <= TOTAL_FLOORS; floor++) {
+                UNIT_TYPES_ORDERED.forEach(unitType => {
+                    allApartmentIds.push(`F${floor}${unitType}`);
+                });
+            }
+            const mustIncludeUnits = [mustFeatureUnit1Select.value, mustFeatureUnit2Select.value].filter(val => val !== '');
+            const mustExcludeUnits = [mustNotFeatureUnit1Select.value, mustNotFeatureUnit2Select.value].filter(val => val !== '');
+
+            const topCombos = calculateTopCombinations(allApartmentIds, munirFamilyShareSqFt, true, mustIncludeUnits, mustExcludeUnits);
+            displayTopCombinations(topCombos.slice(0, 5), true);
+        });
+
+        unitBasedViewRadio.addEventListener('change', () => {
+            floorUnitSelectionSection.style.display = 'none';
+            unitBasedInfoSection.style.display = 'block';
+            // Recalculate and display top combinations for the active view
+            const allApartmentIds = []; // Not used for unit-based combos, but function requires it
+            const mustIncludeUnits = [mustFeatureUnit1Select.value, mustFeatureUnit2Select.value].filter(val => val !== '');
+            const mustExcludeUnits = [mustNotFeatureUnit1Select.value, mustNotFeatureUnit2Select.value].filter(val => val !== '');
+
+            const topCombos = calculateTopCombinations(allApartmentIds, munirFamilyShareSqFt, false, mustIncludeUnits, mustExcludeUnits);
+            displayTopCombinations(topCombos.slice(0, 5), false);
+        });
+
+        showAllCombinationsBtn.addEventListener('click', () => {
+            const allApartmentIds = [];
+            for (let floor = 1; floor <= TOTAL_FLOORS; floor++) {
+                UNIT_TYPES_ORDERED.forEach(unitType => {
+                    allApartmentIds.push(`F${floor}${unitType}`);
+                });
+            }
+            const isFloorUnitActive = floorUnitViewRadio.checked;
+
+            // Get filter values
+            const mustIncludeUnits = [mustFeatureUnit1Select.value, mustFeatureUnit2Select.value].filter(val => val !== '');
+            const mustExcludeUnits = [mustNotFeatureUnit1Select.value, mustNotFeatureUnit2Select.value].filter(val => val !== '');
+
+            const allCombos = calculateTopCombinations(allApartmentIds, munirFamilyShareSqFt, isFloorUnitActive, mustIncludeUnits, mustExcludeUnits);
+            displayTopCombinations(allCombos, isFloorUnitActive); // Display all
+        });
+
+
+        // Initial load
+        window.onload = () => {
+            // Set language from local storage or default to English
+            const savedLanguage = localStorage.getItem('selectedLanguage') || 'en';
+            languageSelect.value = savedLanguage;
+            setLanguage(savedLanguage); // Apply language on load
+
+            loadDefaults();
+            calculateShareAndOptions(); // Perform initial calculation on load
+        };
+
+    </script>
+</body>
+</html>
