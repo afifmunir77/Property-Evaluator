@@ -277,6 +277,14 @@
             <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="defaultValuesAndInputs">Default Values & Inputs</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Total Floors -->
+                <div class="input-group">
+                    <label for="totalFloors" data-i18n="totalFloors">Total Floors:</label>
+                    <select id="totalFloors" class="w-full">
+                        <option value="7" selected>7</option>
+                        <option value="9">9</option>
+                    </select>
+                </div>
                 <!-- Property Area -->
                 <div class="input-group">
                     <label for="propertyArea" data-i18n="propertyArea">Property Area:</label>
@@ -442,7 +450,7 @@
                             <span id="outputBuildingAreaPerFloor">0 Sq Ft (0 Decimal)</span>
                         </div>
                         <div class="output-item">
-                            <span data-i18n="totalBuildingArea7Floors">Total Building Area (7 Floors):</span>
+                            <span data-i18n="totalBuildingAreaFloors">Total Building Area ({count} Floors):</span>
                             <span id="outputBuildingArea">0 Sq Ft (0 Decimal)</span>
                         </div>
                         <div class="output-item">
@@ -476,6 +484,77 @@
                             <span id="outputDiscountedCompensationReal">0 Taka</span>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Shop Compensation Section -->
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="shopCompensationTitle">Shop Compensation Calculation</h3>
+                <div class="space-y-2">
+                    <div class="output-item">
+                        <span data-i18n="totalShopArea">Total Shop Area:</span>
+                        <span id="outputShopArea">1050 Sq Ft</span>
+                    </div>
+                    <div class="output-item">
+                        <span data-i18n="zakariaShopShare">Zakaria Family's Share (38%):</span>
+                        <span id="outputZakariaShopShare">0 Sq Ft</span>
+                    </div>
+                    <div class="output-item">
+                        <span data-i18n="munirShopShare">Munir Family's Share (1/4 of Zakaria's):</span>
+                        <span id="outputMunirShopShare">0 Sq Ft</span>
+                    </div>
+                    <div class="output-item">
+                        <span data-i18n="munirShopShareEquivalent">Equivalent in Average Units:</span>
+                        <span id="outputMunirShopShareEquivalent">0 Units</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Proposed Distribution Section -->
+        <section class="mb-8 p-6 bg-white rounded-xl shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="proposedDistributionTitle">Proposed Distribution & Compensation</h2>
+            <div>
+                <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="zakariaProposedUnits">Zakaria Family's Proposed Units:</h3>
+                <ul class="list-disc list-inside space-y-2">
+                    <li>Floor 1: A+B</li>
+                    <li>Floor 2: D+E</li>
+                    <li>Floor 3: B+D</li>
+                    <li>Floor 4: C+D</li>
+                    <li>Floor 5: C+F</li>
+                    <li>Floor 6: A+C+F</li>
+                    <li>Floor 7: A+E+F</li>
+                </ul>
+            </div>
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="compensationRequestTitle">Compensation Request:</h3>
+                <p class="text-gray-600" data-i18n="compensationRequestNote">In compensation for giving the floor, an extra A/C is requested.</p>
+            </div>
+        </section>
+
+        <!-- 8th and 9th Floor Scenario Section -->
+        <section class="mb-8 p-6 bg-white rounded-xl shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="extendedFloorsTitle">8th & 9th Floor Scenario</h2>
+            <div class="space-y-2">
+                <div class="output-item">
+                    <span data-i18n="totalNewUnits">Total New Units (Floors 8 & 9):</span>
+                    <span id="outputTotalNewUnits">12</span>
+                </div>
+                <div class="output-item">
+                    <span data-i18n="zakariaNewShare">Zakaria Family's Share (38% of new units):</span>
+                    <span id="outputZakariaNewShare">0 Units</span>
+                </div>
+                <div class="output-item">
+                    <span data-i18n="proposedShare">Proposed Share:</span>
+                    <span id="outputProposedShare">4 Units</span>
+                </div>
+                <div class="output-item">
+                    <span data-i18n="discrepancy">Discrepancy:</span>
+                    <span id="outputDiscrepancy">0 Units</span>
+                </div>
+                <div class="output-item">
+                    <span data-i18n="discrepancyValue">Discrepancy including Shop Compensation:</span>
+                    <span id="outputDiscrepancyValue">0 Units</span>
                 </div>
             </div>
         </section>
@@ -610,9 +689,9 @@
     <script>
         // Constants for conversion
         const SQFT_PER_DECIMAL = 435.6;
-        const TOTAL_FLOORS = 7;
+        let TOTAL_FLOORS = 7;
         const UNITS_PER_FLOOR = 6; // A, B, C, D, E, F
-        const TOTAL_APARTMENTS = TOTAL_FLOORS * UNITS_PER_FLOOR;
+        let TOTAL_APARTMENTS = TOTAL_FLOORS * UNITS_PER_FLOOR;
         const UNIT_TYPES_ORDERED = ['D', 'E', 'F', 'A', 'B', 'C']; // New order for display
 
         // Translations object
@@ -639,7 +718,7 @@
                 unitF: "F Unit:",
                 unitStairs: "Stairs/Common Area:",
                 zakariaShareApartments: "Zakaria Family Share (No. of Apartments):",
-                totalApartmentsNote: "Total apartments: 7 floors * 6 units/floor = 42",
+                totalApartmentsNote: "Total apartments: {count} floors * 6 units/floor = {total}",
                 zakariaShareRatio: "Zakaria Family Share (% of Total Apartments):",
                 calculatedFromApartments: "Calculated from Zakaria Family Share (No. of Apartments)",
                 offeredCompensation: "Offered Compensation (Taka):",
@@ -662,7 +741,7 @@
                 propertyBuildingDetails: "Property & Building Details:",
                 propertyAreaOutput: "Property Area:",
                 totalBuildingAreaPerFloor: "Total Building Area Per Floor:",
-                totalBuildingArea7Floors: "Total Building Area (7 Floors):",
+                totalBuildingAreaFloors: "Total Building Area ({count} Floors):",
                 surroundingArea: "Surrounding Area (Land not covered by building):",
                 munirFamilyShare: "Munir Family's Share:",
                 ourShareOfApartments: "Our Share of Apartments:",
@@ -805,6 +884,7 @@
 
         // DOM Elements
         const languageSelect = document.getElementById('languageSelect');
+        const totalFloorsSelect = document.getElementById('totalFloors');
         const propertyAreaInput = document.getElementById('propertyArea');
         const propertyUnitSelect = document.getElementById('propertyUnit');
         const propertyAreaConvertedP = document.getElementById('propertyAreaConverted');
@@ -1186,7 +1266,7 @@
         propertyUnitSelect.addEventListener('change', updatePropertyAreaConversion);
 
         // --- Zakaria Share Ratio Sync ---
-        zakariaShareInput.addEventListener('input', () => {
+        function updateShareSync() {
             const numApartments = parseInt(zakariaShareInput.value);
             if (!isNaN(numApartments) && numApartments >= 0 && numApartments <= TOTAL_APARTMENTS) {
                 const ratio = (numApartments / TOTAL_APARTMENTS) * 100;
@@ -1194,7 +1274,9 @@
             } else {
                 zakariaShareRatioInput.value = '';
             }
-        });
+        }
+
+        zakariaShareInput.addEventListener('input', updateShareSync);
 
         zakariaShareRatioInput.addEventListener('input', () => {
             const ratio = parseFloat(zakariaShareRatioInput.value);
@@ -1638,6 +1720,19 @@
          */
         function calculateShareAndOptions() {
             // 1. Get Input Values
+            TOTAL_FLOORS = parseInt(totalFloorsSelect.value);
+            TOTAL_APARTMENTS = TOTAL_FLOORS * UNITS_PER_FLOOR;
+            zakariaShareInput.max = TOTAL_APARTMENTS;
+            updateShareSync();
+
+            // Update the note about total apartments
+            const noteElement = document.querySelector('[data-i18n="totalApartmentsNote"]');
+            if (noteElement) {
+                let noteText = translations[currentLanguage].totalApartmentsNote;
+                noteText = noteText.replace('{count}', TOTAL_FLOORS).replace('{total}', TOTAL_APARTMENTS);
+                noteElement.textContent = noteText;
+            }
+
             const propertyAreaValue = parseFloat(propertyAreaInput.value);
             const propertyAreaUnit = propertyUnitSelect.value;
 
@@ -1682,6 +1777,13 @@
             // Calculate Total Building Area based on specific unit areas * 7 floors
             const areaPerFloorFootprint = unitA + unitB + unitC + unitD + unitE + unitF + unitStairs;
             const totalBuildingAreaSqFt = areaPerFloorFootprint * TOTAL_FLOORS;
+
+            const buildingAreaLabel = document.querySelector('[data-i18n="totalBuildingAreaFloors"]');
+            if (buildingAreaLabel) {
+                let labelText = translations[currentLanguage].totalBuildingAreaFloors;
+                labelText = labelText.replace('{count}', TOTAL_FLOORS);
+                buildingAreaLabel.textContent = labelText;
+            }
 
             outputBuildingAreaPerFloor.textContent = formatArea(areaPerFloorFootprint);
             outputBuildingArea.textContent = formatArea(totalBuildingAreaSqFt);
@@ -1758,7 +1860,28 @@
             }
 
 
-            // 4. Apartment Combinations
+            // 4. Shop Compensation Calculation
+            const totalShopArea = 1050;
+            const zakariaShopShare = totalShopArea * 0.38;
+            const munirShopShare = zakariaShopShare / 4;
+            const equivalentUnits = munirShopShare / averageDivisibleApartmentArea;
+
+            document.getElementById('outputZakariaShopShare').textContent = `${zakariaShopShare.toFixed(2)} Sq Ft`;
+            document.getElementById('outputMunirShopShare').textContent = `${munirShopShare.toFixed(2)} Sq Ft`;
+            document.getElementById('outputMunirShopShareEquivalent').textContent = `${equivalentUnits.toFixed(2)} Units`;
+
+            // 5. 8th and 9th Floor Scenario Calculation
+            const totalNewUnits = 12;
+            const zakariaNewShare = totalNewUnits * 0.38;
+            const proposedShare = 4;
+            const discrepancy = zakariaNewShare - proposedShare;
+            const discrepancyValue = discrepancy + equivalentUnits;
+
+            document.getElementById('outputZakariaNewShare').textContent = `${zakariaNewShare.toFixed(2)} Units`;
+            document.getElementById('outputDiscrepancy').textContent = `${discrepancy.toFixed(2)} Units`;
+            document.getElementById('outputDiscrepancyValue').textContent = `${discrepancyValue.toFixed(2)} Units`;
+
+            // 6. Apartment Combinations
             generateApartmentGrid(); // Re-generate grid with updated unit areas for Floor-Unit View
             generateUnitInfoGrid(); // Generate info cards for Unit-Based View
 
@@ -1799,6 +1922,7 @@
         calculateBtn.addEventListener('click', calculateShareAndOptions);
         setDefaultsBtn.addEventListener('click', saveDefaults);
         resetDefaultsBtn.addEventListener('click', resetDefaults);
+        totalFloorsSelect.addEventListener('change', calculateShareAndOptions);
 
         // Event listeners for view toggle
         floorUnitViewRadio.addEventListener('change', () => {
