@@ -362,15 +362,32 @@
 
             <!-- Share and Compensation -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div class="input-group">
-                    <label for="zakariaShare" data-i18n="zakariaShareApartments">Zakaria Family Share (No. of Apartments):</label>
-                    <input type="number" id="zakariaShare" value="16" min="1" max="42">
-                    <p class="text-sm text-gray-500 mt-1" data-i18n="totalApartmentsNote">Total apartments: 7 floors * 6 units/floor = 42</p>
-                </div>
-                <div class="input-group">
-                    <label for="zakariaShareRatio" data-i18n="zakariaShareRatio">Zakaria Family Share (% of Total Apartments):</label>
-                    <input type="number" id="zakariaShareRatio" placeholder="e.g., 38.09" step="0.01">
-                    <p class="text-sm text-gray-500 mt-1" data-i18n="calculatedFromApartments">Calculated from Zakaria Family Share (No. of Apartments)</p>
+                <!-- Family Unit Allocation -->
+                <div class="input-group md:col-span-2">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-3" data-i18n="familyUnitAllocationTitle">Family Unit Allocation:</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="input-group">
+                            <label for="habibUnits" data-i18n="habibUnits">Habib:</label>
+                            <input type="number" class="family-unit-input" id="habibUnits" value="16" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="munirUnits" data-i18n="munirUnits">Munir:</label>
+                            <input type="number" class="family-unit-input" id="munirUnits" value="4" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="ahmedUnits" data-i18n="ahmedUnits">Ahmed:</label>
+                            <input type="number" class="family-unit-input" id="ahmedUnits" value="4" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="abdullahUnits" data-i18n="abdullahUnits">Abdullah:</label>
+                            <input type="number" class="family-unit-input" id="abdullahUnits" value="4" min="0">
+                        </div>
+                    </div>
+                    <div class="mt-4 text-right">
+                        <p class="text-sm text-gray-500 mt-1" data-i18n="totalApartmentsNote"></p>
+                        <span class="font-semibold" data-i18n="totalAllocatedUnits">Total Allocated Units:</span>
+                        <span id="totalAllocatedUnits" class="font-bold">28</span>
+                    </div>
                 </div>
 
                 <div class="input-group">
@@ -457,6 +474,14 @@
                             <span data-i18n="surroundingArea">Surrounding Area (Land not covered by building):</span>
                             <span id="outputSurroundingArea">0 Sq Ft (0 Decimal)</span>
                         </div>
+                        <div class="output-item font-semibold text-indigo-700">
+                            <span data-i18n="totalBuildingAreaNoCommon">Total Building Area (No Common Area):</span>
+                            <span id="outputBuildingAreaNoCommon">0 Sq Ft</span>
+                        </div>
+                        <div class="output-item font-semibold text-indigo-700">
+                            <span data-i18n="remainingArea">Remaining Area After Allocation:</span>
+                            <span id="outputRemainingArea">0 Sq Ft</span>
+                        </div>
                     </div>
                 </div>
 
@@ -491,9 +516,9 @@
             <div class="mt-8">
                 <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="shopCompensationTitle">Shop Compensation Calculation</h3>
                 <div class="space-y-2">
-                    <div class="output-item">
-                        <span data-i18n="totalShopArea">Total Shop Area:</span>
-                        <span id="outputShopArea">1050 Sq Ft</span>
+                    <div class="input-group">
+                        <label for="totalShopArea" data-i18n="totalShopArea">Total Shop Area:</label>
+                        <input type="number" id="totalShopArea" value="1050" min="0">
                     </div>
                     <div class="output-item">
                         <span data-i18n="zakariaShopShare">Zakaria Family's Share (38%):</span>
@@ -514,18 +539,30 @@
         <!-- Proposed Distribution Section -->
         <section class="mb-8 p-6 bg-white rounded-xl shadow-md">
             <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="proposedDistributionTitle">Proposed Distribution & Compensation</h2>
+
+            <!-- Proposed Distribution Calculator -->
             <div>
-                <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="zakariaProposedUnits">Zakaria Family's Proposed Units:</h3>
-                <ul class="list-disc list-inside space-y-2">
-                    <li>Floor 1: A+B</li>
-                    <li>Floor 2: D+E</li>
-                    <li>Floor 3: B+D</li>
-                    <li>Floor 4: C+D</li>
-                    <li>Floor 5: C+F</li>
-                    <li>Floor 6: A+C+F</li>
-                    <li>Floor 7: A+E+F</li>
-                </ul>
+                <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="zakariaProposedUnitsCalculator">Zakaria/Habib Family's Proposed Units Calculator:</h3>
+                <div id="proposedUnitsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <!-- Input fields for each floor will be generated here by JS -->
+                </div>
+                <button id="calculateProposedAreaBtn" class="btn btn-primary w-full mb-4" data-i18n="calculateProposedAreaBtn">Calculate Proposed Area</button>
+                <div class="space-y-2">
+                    <div class="output-item">
+                        <span data-i18n="totalProposedArea">Total Proposed Area:</span>
+                        <span id="outputTotalProposedArea">0 Sq Ft</span>
+                    </div>
+                    <div class="output-item">
+                        <span data-i18n="habibRightfulShare">Habib's Rightful Share:</span>
+                        <span id="outputHabibRightfulShare">0 Sq Ft</span>
+                    </div>
+                    <div class="output-item">
+                        <span data-i18n="differenceFromRightfulShare">Difference:</span>
+                        <span id="outputProposedDifference" class="font-bold">0 Sq Ft</span>
+                    </div>
+                </div>
             </div>
+
             <div class="mt-6">
                 <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="compensationRequestTitle">Compensation Request:</h3>
                 <p class="text-gray-600" data-i18n="compensationRequestNote">In compensation for giving the floor, an extra A/C is requested.</p>
@@ -534,27 +571,19 @@
 
         <!-- 8th and 9th Floor Scenario Section -->
         <section class="mb-8 p-6 bg-white rounded-xl shadow-md">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="extendedFloorsTitle">8th & 9th Floor Scenario</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="extendedFloorsTitle">9-Floor Scenario Negotiation</h2>
             <div class="space-y-2">
-                <div class="output-item">
-                    <span data-i18n="totalNewUnits">Total New Units (Floors 8 & 9):</span>
-                    <span id="outputTotalNewUnits">12</span>
+                <div class="input-group">
+                    <label for="munirProposedUnits" data-i18n="munirProposedUnits">Munir Family's Proposed Units in 9-Floor Plan:</label>
+                    <input type="number" id="munirProposedUnits" value="5" min="0">
                 </div>
                 <div class="output-item">
-                    <span data-i18n="zakariaNewShare">Zakaria Family's Share (38% of new units):</span>
-                    <span id="outputZakariaNewShare">0 Units</span>
+                    <span data-i18n="munirTotalShare">Munir's Total Rightful Share (Original + New Floors + Shop):</span>
+                    <span id="outputMunirTotalShare">0 Units</span>
                 </div>
-                <div class="output-item">
-                    <span data-i18n="proposedShare">Proposed Share:</span>
-                    <span id="outputProposedShare">4 Units</span>
-                </div>
-                <div class="output-item">
-                    <span data-i18n="discrepancy">Discrepancy:</span>
-                    <span id="outputDiscrepancy">0 Units</span>
-                </div>
-                <div class="output-item">
-                    <span data-i18n="discrepancyValue">Discrepancy including Shop Compensation:</span>
-                    <span id="outputDiscrepancyValue">0 Units</span>
+                <div class="output-item font-semibold text-indigo-700">
+                    <span data-i18n="finalDiscrepancy">Final Discrepancy:</span>
+                    <span id="outputFinalDiscrepancy">0 Units</span>
                 </div>
             </div>
         </section>
@@ -567,6 +596,19 @@
                 <label for="floorUnitView" data-i18n="floorUnitView">Floor-Unit View</label>
                 <input type="radio" id="unitBasedView" name="apartmentView" value="unitBased">
                 <label for="unitBasedView" data-i18n="unitBasedView">Unit-Based View (Informational & Selection)</label>
+            </div>
+
+            <!-- Advanced Expression Calculator -->
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4" data-i18n="expressionCalculatorTitle">Unit Area Calculator</h3>
+                <div class="flex gap-4">
+                    <input type="text" id="expressionInput" class="w-full" placeholder="e.g., 2*A + 3*B">
+                    <button id="calculateExpressionBtn" class="btn btn-primary" data-i18n="calculateBtn">Calculate</button>
+                </div>
+                <div class="mt-4 text-right">
+                    <span class="font-semibold" data-i18n="result">Result:</span>
+                    <span id="expressionResult" class="font-bold">0 Sq Ft</span>
+                </div>
             </div>
 
             <div id="floorUnitSelectionSection">
@@ -717,10 +759,13 @@
                 unitE: "E Unit:",
                 unitF: "F Unit:",
                 unitStairs: "Stairs/Common Area:",
-                zakariaShareApartments: "Zakaria Family Share (No. of Apartments):",
+                familyUnitAllocationTitle: "Family Unit Allocation:",
+                habibUnits: "Habib:",
+                munirUnits: "Munir:",
+                ahmedUnits: "Ahmed:",
+                abdullahUnits: "Abdullah:",
+                totalAllocatedUnits: "Total Allocated Units:",
                 totalApartmentsNote: "Total apartments: {count} floors * 6 units/floor = {total}",
-                zakariaShareRatio: "Zakaria Family Share (% of Total Apartments):",
-                calculatedFromApartments: "Calculated from Zakaria Family Share (No. of Apartments)",
                 offeredCompensation: "Offered Compensation (Taka):",
                 totalPayment: "Total Payment",
                 monthlyPayment: "Monthly Payment",
@@ -902,8 +947,13 @@
         const unitFInput = document.getElementById('unitF');
         const unitStairsInput = document.getElementById('unitStairs');
 
-        const zakariaShareInput = document.getElementById('zakariaShare');
-        const zakariaShareRatioInput = document.getElementById('zakariaShareRatio'); // New ratio input
+        const habibUnitsInput = document.getElementById('habibUnits');
+        const munirUnitsInput = document.getElementById('munirUnits');
+        const ahmedUnitsInput = document.getElementById('ahmedUnits');
+        const abdullahUnitsInput = document.getElementById('abdullahUnits');
+        const totalAllocatedUnitsSpan = document.getElementById('totalAllocatedUnits');
+        const familyUnitInputs = document.querySelectorAll('.family-unit-input');
+
         const compensationAmountInput = document.getElementById('compensationAmount');
         const compensationTypeRadios = document.querySelectorAll('input[name="compensationType"]');
         const durationValueInput = document.getElementById('durationValue');
@@ -1265,27 +1315,96 @@
         propertyAreaInput.addEventListener('input', updatePropertyAreaConversion);
         propertyUnitSelect.addEventListener('change', updatePropertyAreaConversion);
 
-        // --- Zakaria Share Ratio Sync ---
-        function updateShareSync() {
-            const numApartments = parseInt(zakariaShareInput.value);
-            if (!isNaN(numApartments) && numApartments >= 0 && numApartments <= TOTAL_APARTMENTS) {
-                const ratio = (numApartments / TOTAL_APARTMENTS) * 100;
-                zakariaShareRatioInput.value = ratio.toFixed(2);
-            } else {
-                zakariaShareRatioInput.value = '';
+        // --- Proposed Distribution Calculator ---
+        function generateProposedUnitsGrid() {
+            const grid = document.getElementById('proposedUnitsGrid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= TOTAL_FLOORS; i++) {
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'input-group';
+                inputGroup.innerHTML = `
+                    <label for="floor${i}Units" class="text-sm">${translations[currentLanguage].floorText} ${i}:</label>
+                    <input type="text" id="floor${i}Units" class="proposed-unit-input" placeholder="e.g., A+B">
+                `;
+                grid.appendChild(inputGroup);
             }
         }
 
-        zakariaShareInput.addEventListener('input', updateShareSync);
-
-        zakariaShareRatioInput.addEventListener('input', () => {
-            const ratio = parseFloat(zakariaShareRatioInput.value);
-            if (!isNaN(ratio) && ratio >= 0 && ratio <= 100) {
-                const numApartments = Math.round((ratio / 100) * TOTAL_APARTMENTS);
-                zakariaShareInput.value = numApartments;
-            } else {
-                zakariaShareInput.value = '';
+        function calculateProposedArea() {
+            const unitAreas = getUnitAreas();
+            if (Object.values(unitAreas).some(area => area === 0)) {
+                showMessage('msgEnterPositiveUnitAreas');
+                return;
             }
+
+            let totalProposedArea = 0;
+            const inputs = document.querySelectorAll('.proposed-unit-input');
+            inputs.forEach(input => {
+                const expression = input.value.toUpperCase().split('+');
+                expression.forEach(unit => {
+                    const trimmedUnit = unit.trim();
+                    if (unitAreas[trimmedUnit]) {
+                        totalProposedArea += unitAreas[trimmedUnit];
+                    }
+                });
+            });
+
+            const habibUnits = parseInt(habibUnitsInput.value) || 0;
+            const totalDivisibleAreaPerFloor = Object.values(unitAreas).reduce((a, b) => a + b, 0) - (unitAreas.Stairs || 0);
+            const averageApartmentArea = totalDivisibleAreaPerFloor * TOTAL_FLOORS / TOTAL_APARTMENTS;
+            const habibRightfulShare = habibUnits * averageApartmentArea;
+            const difference = totalProposedArea - habibRightfulShare;
+
+            document.getElementById('outputTotalProposedArea').textContent = `${totalProposedArea.toFixed(2)} Sq Ft`;
+            document.getElementById('outputHabibRightfulShare').textContent = `${habibRightfulShare.toFixed(2)} Sq Ft`;
+            const diffEl = document.getElementById('outputProposedDifference');
+            diffEl.textContent = `${difference.toFixed(2)} Sq Ft`;
+            diffEl.classList.toggle('positive', difference > 0);
+            diffEl.classList.toggle('negative', difference < 0);
+        }
+
+        document.getElementById('calculateProposedAreaBtn').addEventListener('click', calculateProposedArea);
+
+        // --- Advanced Expression Calculator ---
+        function calculateExpression() {
+            const expression = document.getElementById('expressionInput').value;
+            const unitAreas = getUnitAreas();
+
+            // Replace unit names with their values
+            let safeExpression = expression.toUpperCase();
+            for (const unit in unitAreas) {
+                const regex = new RegExp(unit, "g");
+                safeExpression = safeExpression.replace(regex, unitAreas[unit]);
+            }
+
+            // Validate the expression to only contain numbers and safe operators
+            if (!/^[0-9\.\+\-\*\/\(\)\s]+$/.test(safeExpression)) {
+                showMessage("Invalid characters in expression.");
+                return;
+            }
+
+            try {
+                const result = new Function('return ' + safeExpression)();
+                document.getElementById('expressionResult').textContent = `${result.toFixed(2)} Sq Ft`;
+            } catch (e) {
+                showMessage("Invalid expression.");
+            }
+        }
+
+        document.getElementById('calculateExpressionBtn').addEventListener('click', calculateExpression);
+
+
+        // --- Family Unit Allocation Sync ---
+        function updateFamilyUnitAllocation() {
+            let totalAllocated = 0;
+            familyUnitInputs.forEach(input => {
+                totalAllocated += parseInt(input.value) || 0;
+            });
+            totalAllocatedUnitsSpan.textContent = totalAllocated;
+        }
+
+        familyUnitInputs.forEach(input => {
+            input.addEventListener('input', updateFamilyUnitAllocation);
         });
 
 
@@ -1722,8 +1841,7 @@
             // 1. Get Input Values
             TOTAL_FLOORS = parseInt(totalFloorsSelect.value);
             TOTAL_APARTMENTS = TOTAL_FLOORS * UNITS_PER_FLOOR;
-            zakariaShareInput.max = TOTAL_APARTMENTS;
-            updateShareSync();
+            updateFamilyUnitAllocation();
 
             // Update the note about total apartments
             const noteElement = document.querySelector('[data-i18n="totalApartmentsNote"]');
@@ -1732,6 +1850,8 @@
                 noteText = noteText.replace('{count}', TOTAL_FLOORS).replace('{total}', TOTAL_APARTMENTS);
                 noteElement.textContent = noteText;
             }
+
+            generateProposedUnitsGrid();
 
             const propertyAreaValue = parseFloat(propertyAreaInput.value);
             const propertyAreaUnit = propertyUnitSelect.value;
@@ -1746,8 +1866,11 @@
             const unitF = unitAreas.F;
             const unitStairs = unitAreas.Stairs;
 
+            const habibUnits = parseInt(habibUnitsInput.value) || 0;
+            const munirUnits = parseInt(munirUnitsInput.value) || 0;
+            const ahmedUnits = parseInt(ahmedUnitsInput.value) || 0;
+            const abdullahUnits = parseInt(abdullahUnitsInput.value) || 0;
 
-            const zakariaShare = parseInt(zakariaShareInput.value);
             const compensationAmount = parseFloat(compensationAmountInput.value) || 0;
             const compensationType = document.querySelector('input[name="compensationType"]:checked').value;
             const durationValue = parseFloat(durationValueInput.value) || 0;
@@ -1758,10 +1881,6 @@
             // Input Validation
             if (isNaN(propertyAreaValue) || propertyAreaValue <= 0) {
                 showMessage('msgEnterValidPropertyArea');
-                return;
-            }
-            if (isNaN(zakariaShare) || zakariaShare <= 0 || zakariaShare > TOTAL_APARTMENTS) {
-                showMessage('msgEnterValidZakariaShare');
                 return;
             }
             if (unitA <= 0 || unitB <= 0 || unitC <= 0 || unitD <= 0 || unitE <= 0 || unitF <= 0 || unitStairs <= 0) {
@@ -1794,8 +1913,7 @@
 
 
             // 3. Munir Family's Share
-            munirFamilyRequiredApartments = Math.floor(zakariaShare / 4); // Integer division
-            if (munirFamilyRequiredApartments === 0) munirFamilyRequiredApartments = 1; // Ensure at least 1 if share is very low
+            munirFamilyRequiredApartments = munirUnits;
             requiredApartmentsSpan.textContent = munirFamilyRequiredApartments;
             requiredApartmentsUnitBasedSpan.textContent = munirFamilyRequiredApartments; // Update for unit-based view
 
@@ -1807,6 +1925,16 @@
             munirFamilyShareSqFt = averageDivisibleApartmentArea * munirFamilyRequiredApartments;
             outputMunirApartments.textContent = `${munirFamilyRequiredApartments} ${translations[currentLanguage].ourShareOfApartments.split(':')[0].trim()}`;
             outputMunirShareApprox.textContent = formatArea(munirFamilyShareSqFt); // Removed percentage
+
+            // Enhanced Area Calculation Outputs
+            const habibShareSqFt = averageDivisibleApartmentArea * habibUnits;
+            const ahmedShareSqFt = averageDivisibleApartmentArea * ahmedUnits;
+            const abdullahShareSqFt = averageDivisibleApartmentArea * abdullahUnits;
+            const totalAllocatedArea = habibShareSqFt + munirFamilyShareSqFt + ahmedShareSqFt + abdullahShareSqFt;
+            const remainingArea = totalDivisibleBuildingAreaSqFt - totalAllocatedArea;
+
+            document.getElementById('outputBuildingAreaNoCommon').textContent = `${totalDivisibleBuildingAreaSqFt.toFixed(2)} Sq Ft`;
+            document.getElementById('outputRemainingArea').textContent = `${remainingArea.toFixed(2)} Sq Ft`;
 
 
             // Munir's share of compensation
@@ -1861,7 +1989,7 @@
 
 
             // 4. Shop Compensation Calculation
-            const totalShopArea = 1050;
+            const totalShopArea = parseFloat(document.getElementById('totalShopArea').value) || 0;
             const zakariaShopShare = totalShopArea * 0.38;
             const munirShopShare = zakariaShopShare / 4;
             const equivalentUnits = munirShopShare / averageDivisibleApartmentArea;
@@ -1870,16 +1998,24 @@
             document.getElementById('outputMunirShopShare').textContent = `${munirShopShare.toFixed(2)} Sq Ft`;
             document.getElementById('outputMunirShopShareEquivalent').textContent = `${equivalentUnits.toFixed(2)} Units`;
 
-            // 5. 8th and 9th Floor Scenario Calculation
-            const totalNewUnits = 12;
-            const zakariaNewShare = totalNewUnits * 0.38;
-            const proposedShare = 4;
-            const discrepancy = zakariaNewShare - proposedShare;
-            const discrepancyValue = discrepancy + equivalentUnits;
+            // 5. 9-Floor Scenario Negotiation
+            if (TOTAL_FLOORS === 9) {
+                const munirProposedUnits = parseInt(document.getElementById('munirProposedUnits').value) || 0;
+                const newUnits = 12; // Units from floors 8 and 9
+                const habibSharePercentage = habibUnits / (TOTAL_APARTMENTS - newUnits); // Base share on original 7 floors
+                const habibNewShare = newUnits * habibSharePercentage;
+                const munirNewShare = habibNewShare / 4;
+                const munirTotalShare = munirUnits + munirNewShare + equivalentUnits;
+                const finalDiscrepancy = munirProposedUnits - munirTotalShare;
 
-            document.getElementById('outputZakariaNewShare').textContent = `${zakariaNewShare.toFixed(2)} Units`;
-            document.getElementById('outputDiscrepancy').textContent = `${discrepancy.toFixed(2)} Units`;
-            document.getElementById('outputDiscrepancyValue').textContent = `${discrepancyValue.toFixed(2)} Units`;
+                document.getElementById('outputMunirTotalShare').textContent = `${munirTotalShare.toFixed(2)} Units`;
+                document.getElementById('outputFinalDiscrepancy').textContent = `${finalDiscrepancy.toFixed(2)} Units`;
+            } else {
+                // Hide or disable the section if not 9 floors
+                document.getElementById('outputMunirTotalShare').textContent = `N/A`;
+                document.getElementById('outputFinalDiscrepancy').textContent = `N/A`;
+            }
+
 
             // 6. Apartment Combinations
             generateApartmentGrid(); // Re-generate grid with updated unit areas for Floor-Unit View
